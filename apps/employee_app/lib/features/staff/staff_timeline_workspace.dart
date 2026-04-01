@@ -406,25 +406,28 @@ class _TrackRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: 40,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Text(
-                'T${trackIndex + 1}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.spotlightBlue,
+      // Bounded height: inside scrollables, Row + stretch gets infinite max height.
+      child: SizedBox(
+        height: 56,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: 40,
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'T${trackIndex + 1}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.spotlightBlue,
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: LayoutBuilder(
+            Expanded(
+              child: LayoutBuilder(
               builder: (context, constraints) {
                 final w = constraints.maxWidth;
                 return DragTarget<TaskTemplate>(
@@ -490,6 +493,7 @@ class _TrackRow extends StatelessWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }
