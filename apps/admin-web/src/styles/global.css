@@ -1156,6 +1156,44 @@ code {
   font-size: 0.9rem;
 }
 
+.settings-export-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.settings-filter-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 220px;
+}
+
+.settings-filter-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--spotlight);
+}
+
+.settings-filter-select {
+  border-radius: 8px;
+  border: 1px solid rgba(61, 90, 128, 0.6);
+  background: rgba(10, 22, 40, 0.85);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.65rem;
+}
+
+.settings-filter-select:focus {
+  outline: none;
+  border-color: rgba(212, 175, 55, 0.55);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.14);
+}
+
 .settings-export-toolbar {
   display: flex;
   flex-wrap: wrap;
