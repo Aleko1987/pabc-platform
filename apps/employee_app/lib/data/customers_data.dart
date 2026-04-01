@@ -146,3 +146,10 @@ CustomerRecord? customerBySlug(String slug) {
   }
   return null;
 }
+
+/// Customers whose [CustomerRecord.areaSlugs] includes [areaSlug].
+List<CustomerRecord> customersByAreaSlug(String areaSlug) {
+  return kCustomerRecords
+      .where((c) => c.areaSlugs.contains(areaSlug))
+      .toList(growable: false);
+}

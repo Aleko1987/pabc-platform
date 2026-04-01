@@ -2,33 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/theme/app_colors.dart';
+import '../../data/customers_data.dart';
+import '../../data/staff_directory.dart';
+import '../../features/areas/area_detail_screen.dart';
+import '../../features/customers/customer_detail_screen.dart';
 import '../../features/roster/org_roster_screen.dart';
+import '../../features/staff/staff_detail_screen.dart';
 import '../../shared/widgets/pabc_card.dart';
-
-/// Placeholder data until Supabase wiring; matches dashboard UX review mockups.
-const _kCustomerNames = <String>[
-  'Malboro Crane Hire',
-  'Edenvale Action Sports',
-  'Country Pies HQ Modderfontein',
-  'Broll Real Estate Sandton',
-  'James Movers Primrose',
-  'Peters Papers Meadowdale',
-  'FNB Sandton',
-  'Absa Melrose',
-  'Peters Chickens Katlehong',
-];
-
-const _kStaffNames = <String>[
-  'Thabo Mokoena',
-  'Nomsa Khumalo',
-  'David van der Berg',
-  'Lerato Maseko',
-  'Pieter Botha',
-  'Zanele Dlamini',
-  'Kevin Naidoo',
-  'Ayanda Ntuli',
-  'Michelle Fourie',
-];
 
 class _NamedArea {
   const _NamedArea({required this.slug, required this.label});
@@ -78,13 +58,30 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  List<String> get _filteredNames {
-    final source =
-        _tab == _DashboardTab.customers ? _kCustomerNames : _kStaffNames;
+  List<CustomerRecord> get _filteredCustomers {
     final q = _searchController.text.trim().toLowerCase();
-    if (q.isEmpty) return List<String>.from(source);
-    return source
-        .where((name) => name.toLowerCase().contains(q))
+    final list = List<CustomerRecord>.from(kCustomerRecords);
+    if (q.isEmpty) return list;
+    return list
+        .where(
+          (c) =>
+              c.name.toLowerCase().contains(q) ||
+              c.slug.toLowerCase().contains(q),
+        )
+        .toList(growable: false);
+  }
+
+  List<StaffRecord> get _filteredStaff {
+    final q = _searchController.text.trim().toLowerCase();
+    final list = List<StaffRecord>.from(kStaffRecords);
+    if (q.isEmpty) return list;
+    return list
+        .where(
+          (s) =>
+              s.name.toLowerCase().contains(q) ||
+              s.slug.toLowerCase().contains(q) ||
+              s.role.toLowerCase().contains(q),
+        )
         .toList(growable: false);
   }
 
@@ -94,7 +91,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final q = _searchController.text.trim().toLowerCase();
     if (q.isEmpty) return flat;
     return flat
-        .where((a) => a.label.toLowerCase().contains(q))
+        .where(
+          (a) =>
+              a.label.toLowerCase().contains(q) ||
+              a.slug.toLowerCase().contains(q),
+        )
         .toList(growable: false);
   }
 
@@ -160,18 +161,54 @@ class _HomeScreenState extends State<HomeScreen> {
                             separatorBuilder: (_, __) =>
                                 const SizedBox(height: 12),
                             itemBuilder: (context, index) {
+                              final a = _filteredAreas[index];
                               return _PillListTile(
-                                label: _filteredAreas[index].label,
+                                label: a.label,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute<void>(
+                                      builder: (_) => AreaDetailScreen(
+                                        slug: a.slug,
+                                        label: a.label,
+                                      ),
+                                    ),
+                                  );
+                                },
                               );
                             },
                           ))
                     : ListView.separated(
-                        itemCount: _filteredNames.length,
+                        itemCount: _tab == _DashboardTab.customers
+                            ? _filteredCustomers.length
+                            : _filteredStaff.length,
                         separatorBuilder: (_, __) =>
                             const SizedBox(height: 12),
                         itemBuilder: (context, index) {
+                          if (_tab == _DashboardTab.customers) {
+                            final c = _filteredCustomers[index];
+                            return _PillListTile(
+                              label: c.name,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) =>
+                                        CustomerDetailScreen(slug: c.slug),
+                                  ),
+                                );
+                              },
+                            );
+                          }
+                          final staff = _filteredStaff[index];
                           return _PillListTile(
-                            label: _filteredNames[index],
+                            label: staff.name,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) =>
+                                      StaffDetailScreen(slug: staff.slug),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -409,27 +446,45 @@ class _TabPill extends StatelessWidget {
 }
 
 class _PillListTile extends StatelessWidget {
-  const _PillListTile({required this.label});
+  const _PillListTile({required this.label, this.onTap});
 
   final String label;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.gold,
-        borderRadius: BorderRadius.circular(999),
+    final text = Text(
+      label,
+      textAlign: TextAlign.center,
+      style: const TextStyle(
+        color: Colors.black87,
+        fontWeight: FontWeight.w600,
+        fontSize: 15,
       ),
-      alignment: Alignment.center,
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.black87,
-          fontWeight: FontWeight.w600,
-          fontSize: 15,
+    );
+
+    if (onTap == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.gold,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        alignment: Alignment.center,
+        child: text,
+      );
+    }
+
+    return Material(
+      color: AppColors.gold,
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Center(child: text),
         ),
       ),
     );

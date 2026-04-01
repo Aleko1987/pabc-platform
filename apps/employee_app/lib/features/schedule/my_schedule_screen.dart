@@ -6,8 +6,12 @@ import '../../data/staff_directory.dart';
 import '../../utils/month_calendar.dart';
 
 /// Personal schedule — mirrors admin `StaffSchedulePage`.
+/// [staffSlug] defaults to the signed-in demo profile; set when opened from another officer’s profile.
 class MyScheduleScreen extends StatefulWidget {
-  const MyScheduleScreen({super.key});
+  const MyScheduleScreen({super.key, this.staffSlug});
+
+  /// When null, uses [kDemoStaffSlug] (tab “My schedule”).
+  final String? staffSlug;
 
   @override
   State<MyScheduleScreen> createState() => _MyScheduleScreenState();
@@ -21,7 +25,8 @@ class _MyScheduleScreenState extends State<MyScheduleScreen> {
   void initState() {
     super.initState();
     _cursor = DateTime.now();
-    _staff = staffBySlug(kDemoStaffSlug) ?? kStaffRecords.first;
+    final slug = widget.staffSlug ?? kDemoStaffSlug;
+    _staff = staffBySlug(slug) ?? kStaffRecords.first;
   }
 
   void _addMonths(int delta) {
@@ -40,7 +45,9 @@ class _MyScheduleScreenState extends State<MyScheduleScreen> {
     return Scaffold(
       backgroundColor: AppColors.navy,
       appBar: AppBar(
-        title: const Text('My schedule'),
+        title: Text(
+          widget.staffSlug == null ? 'My schedule' : '${_staff.name} · Schedule',
+        ),
         backgroundColor: AppColors.navySurface,
         foregroundColor: AppColors.textPrimary,
       ),
