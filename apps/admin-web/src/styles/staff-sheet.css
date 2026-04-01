@@ -684,3 +684,31 @@
   color: var(--text-muted);
   line-height: 1.5;
 }
+
+@media (max-width: 700px) {
+  .staff-sheet-hero {
+    padding: 1.2rem 1rem 1rem;
+  }
+
+  .staff-sheet-hero-actions {
+    width: 100%;
+    justify-content: stretch;
+    gap: 0.55rem;
+    flex-shrink: 1;
+  }
+
+  .staff-btn-view-roster,
+  .staff-btn-view-schedule,
+  .staff-btn-view-camera {
+    flex: 1 1 calc(50% - 0.55rem);
+    min-width: 0;
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .staff-btn-view-camera {
+    flex-basis: 100%;
+  }
+}
