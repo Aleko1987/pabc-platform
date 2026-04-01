@@ -68,6 +68,17 @@ npm run dev
 
 See [apps/admin-web/README.md](apps/admin-web/README.md).
 
+## Vercel deployment (SPA / PWA-safe refresh)
+
+`vercel.json` is configured so Vercel builds `apps/admin-web` and serves deep links
+via SPA fallback:
+
+- Static files are served normally (`handle: filesystem`)
+- Any non-file route (for example `/staff/nomsa-khumalo`) is rewritten to
+  `index.html` so browser refresh does not 404
+
+This preserves React Router behavior on direct navigation and reload.
+
 ## Supabase
 
 1. Create a project in the Supabase dashboard.

@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "framework": "vite",
+  "installCommand": "npm install --prefix apps/admin-web",
+  "buildCommand": "npm run build --prefix apps/admin-web",
+  "outputDirectory": "apps/admin-web/dist",
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
+  ]
+}
