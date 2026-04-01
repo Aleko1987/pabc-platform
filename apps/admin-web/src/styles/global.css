@@ -1134,3 +1134,73 @@ code {
     grid-template-columns: 1fr;
   }
 }
+
+/* Settings exports */
+.settings-export-card {
+  margin-top: 1.2rem;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(61, 90, 128, 0.42);
+  background: rgba(17, 30, 51, 0.62);
+}
+
+.settings-export-title {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  color: var(--gold);
+}
+
+.settings-export-lead {
+  margin: 0 0 0.8rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.settings-export-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.settings-month-label {
+  min-width: 9.5rem;
+  text-align: center;
+  color: var(--text);
+}
+
+.settings-month-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(61, 90, 128, 0.65);
+  background: rgba(10, 22, 40, 0.85);
+  color: var(--gold);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.settings-export-btn {
+  margin-left: auto;
+  padding: 0.55rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--gold);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-export-meta {
+  margin: 0.75rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.settings-export-notice {
+  margin: 0.35rem 0 0;
+  color: var(--spotlight);
+  font-size: 0.8rem;
+}
