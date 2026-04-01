@@ -17,6 +17,7 @@ export function StaffSchedulePage() {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [monthIndex, setMonthIndex] = useState(today.getMonth());
+  const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
 
   const grid = useMemo(() => calendarGrid(year, monthIndex), [year, monthIndex]);
 
@@ -29,6 +30,20 @@ export function StaffSchedulePage() {
     const d = new Date(year, monthIndex + delta, 1);
     setYear(d.getFullYear());
     setMonthIndex(d.getMonth());
+  };
+
+  const sendStaffMessage = () => {
+    if (!staff) return;
+    const body = window.prompt(`Message to ${staff.name}:`, "Team check-in: confirm site status by 18:00.");
+    if (!body || !body.trim()) return;
+    setBroadcastNotice(`Message sent to ${staff.name}.`);
+  };
+
+  const sendStaffVoice = () => {
+    if (!staff) return;
+    const note = window.prompt(`Voice note label for ${staff.name}:`, "Shift handover briefing");
+    if (!note || !note.trim()) return;
+    setBroadcastNotice(`Voice note sent to ${staff.name}.`);
   };
 
   if (!staff) {
@@ -50,7 +65,34 @@ export function StaffSchedulePage() {
       </Link>
 
       <header className="staff-schedule-header">
-        <h1>My schedule</h1>
+        <div className="dashboard-header">
+          <h1>My schedule</h1>
+          <div className="dashboard-broadcast-actions">
+            <button
+              type="button"
+              className="dashboard-broadcast-btn"
+              title={`Send message to ${staff.name}`}
+              aria-label={`Send message to ${staff.name}`}
+              onClick={sendStaffMessage}
+            >
+              ✉
+            </button>
+            <button
+              type="button"
+              className="dashboard-broadcast-btn dashboard-broadcast-btn--voice"
+              title={`Send voice note to ${staff.name}`}
+              aria-label={`Send voice note to ${staff.name}`}
+              onClick={sendStaffVoice}
+            >
+              🎤
+            </button>
+          </div>
+        </div>
+        {broadcastNotice ? (
+          <p className="dashboard-broadcast-notice" role="status">
+            {broadcastNotice}
+          </p>
+        ) : null}
         <p className="page-lead">
           <strong>{staff.name}</strong> — mock roster is <strong>five shifts per week</strong>: one day shift (08:00–16:00)
           Monday–Friday; nights and evenings are off; weekends off. The three rows show each time band. Below: who else

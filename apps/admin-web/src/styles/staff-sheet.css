@@ -93,6 +93,26 @@
   flex-shrink: 0;
 }
 
+.staff-btn-comm-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(61, 90, 128, 0.62);
+  background: rgba(10, 22, 40, 0.85);
+  color: #d5e7ff;
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.staff-btn-comm-icon--voice {
+  color: var(--gold);
+  border-color: rgba(212, 175, 55, 0.55);
+}
+
 .staff-btn-view-roster {
   display: inline-flex;
   align-items: center;
@@ -720,5 +740,9 @@
 
   .staff-btn-view-camera {
     flex-basis: 100%;
+  }
+
+  .staff-btn-comm-icon {
+    flex: 0 0 40px;
   }
 }

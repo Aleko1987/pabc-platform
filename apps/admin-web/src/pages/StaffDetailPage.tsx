@@ -92,6 +92,7 @@ export function StaffDetailPage() {
   const [dragOverTrack, setDragOverTrack] = useState<number | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [cameraNotice, setCameraNotice] = useState<string | null>(null);
+  const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000);
@@ -233,6 +234,20 @@ export function StaffDetailPage() {
     );
   }, [staff]);
 
+  const sendStaffMessage = useCallback(() => {
+    if (!staff) return;
+    const body = window.prompt(`Message to ${staff.name}:`, "Team check-in: confirm site status by 18:00.");
+    if (!body || !body.trim()) return;
+    setBroadcastNotice(`Message sent to ${staff.name}.`);
+  }, [staff]);
+
+  const sendStaffVoice = useCallback(() => {
+    if (!staff) return;
+    const note = window.prompt(`Voice note label for ${staff.name}:`, "Shift handover briefing");
+    if (!note || !note.trim()) return;
+    setBroadcastNotice(`Voice note sent to ${staff.name}.`);
+  }, [staff]);
+
   if (!staff) {
     return (
       <div className="page">
@@ -273,6 +288,24 @@ export function StaffDetailPage() {
             </div>
           </div>
           <div className="staff-sheet-hero-actions">
+            <button
+              type="button"
+              className="staff-btn-comm-icon"
+              onClick={sendStaffMessage}
+              title={`Send message to ${staff.name}`}
+              aria-label={`Send message to ${staff.name}`}
+            >
+              ✉
+            </button>
+            <button
+              type="button"
+              className="staff-btn-comm-icon staff-btn-comm-icon--voice"
+              onClick={sendStaffVoice}
+              title={`Send voice note to ${staff.name}`}
+              aria-label={`Send voice note to ${staff.name}`}
+            >
+              🎤
+            </button>
             <Link
               to="/roster"
               className="staff-btn-view-roster"
@@ -302,6 +335,14 @@ export function StaffDetailPage() {
           <div className="staff-camera-notice" role="status">
             <span>{cameraNotice}</span>
             <button type="button" className="staff-camera-notice-dismiss" onClick={() => setCameraNotice(null)}>
+              Dismiss
+            </button>
+          </div>
+        ) : null}
+        {broadcastNotice ? (
+          <div className="staff-camera-notice" role="status">
+            <span>{broadcastNotice}</span>
+            <button type="button" className="staff-camera-notice-dismiss" onClick={() => setBroadcastNotice(null)}>
               Dismiss
             </button>
           </div>
