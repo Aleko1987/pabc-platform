@@ -29,9 +29,29 @@ function useGlobalMatches(trimmedQuery: string) {
 export function DashboardPage() {
   const [tab, setTab] = useState<Tab>("customers");
   const [query, setQuery] = useState("");
+  const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
   const searchQuery = query.trim();
   const globalMatches = useGlobalMatches(searchQuery);
   const isGlobalSearch = searchQuery.length > 0;
+
+  const allRecipients = useMemo(() => {
+    const names = CUSTOMER_RECORDS.flatMap((c) => c.sites.flatMap((s) => s.guards));
+    return Array.from(new Set(names.map((n) => n.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+  }, []);
+
+  const sendGlobalMessage = () => {
+    if (allRecipients.length === 0) return;
+    const body = window.prompt("Message to send to all groups:", "Team check-in: confirm site status by 18:00.");
+    if (!body || !body.trim()) return;
+    setBroadcastNotice(`Message sent to all groups (${allRecipients.length} recipients).`);
+  };
+
+  const sendGlobalVoice = () => {
+    if (allRecipients.length === 0) return;
+    const note = window.prompt("Voice note label:", "Shift handover briefing");
+    if (!note || !note.trim()) return;
+    setBroadcastNotice(`Voice note sent to all groups (${allRecipients.length} recipients).`);
+  };
 
   const filteredCustomersTab = useMemo(() => {
     const q = searchQuery.toLowerCase();
@@ -70,6 +90,28 @@ export function DashboardPage() {
     <div className="page dashboard-page">
       <header className="dashboard-header">
         <h1 className="dashboard-title">Dashboard</h1>
+        <div className="dashboard-broadcast-actions">
+          <button
+            type="button"
+            className="dashboard-broadcast-btn"
+            title={`Send message to all groups (${allRecipients.length})`}
+            aria-label="Send message to all groups"
+            onClick={sendGlobalMessage}
+            disabled={allRecipients.length === 0}
+          >
+            ✉
+          </button>
+          <button
+            type="button"
+            className="dashboard-broadcast-btn dashboard-broadcast-btn--voice"
+            title={`Send voice note to all groups (${allRecipients.length})`}
+            aria-label="Send voice note to all groups"
+            onClick={sendGlobalVoice}
+            disabled={allRecipients.length === 0}
+          >
+            🎤
+          </button>
+        </div>
         <div className="dashboard-search-wrap">
           <label className="visually-hidden" htmlFor="dashboard-search">
             Global search (customers, staff, areas)
@@ -88,6 +130,11 @@ export function DashboardPage() {
           />
         </div>
       </header>
+      {broadcastNotice ? (
+        <p className="dashboard-broadcast-notice" role="status">
+          {broadcastNotice}
+        </p>
+      ) : null}
 
       <div className="dashboard-tab-row">
         <button
