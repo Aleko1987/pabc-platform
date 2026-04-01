@@ -1,0 +1,26 @@
+# Secrets and local env
+.env
+.env.local
+apps/admin-web/.env
+apps/admin-web/.env.local
+**/dart_defines.json
+
+# Flutter
+apps/employee_app/.dart_tool/
+apps/employee_app/build/
+apps/employee_app/.flutter-plugins-dependencies
+apps/employee_app/.packages
+
+# Node
+apps/admin-web/node_modules/
+apps/admin-web/dist/
+
+# IDE
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+
+# OS
+.DS_Store
+Thumbs.db
