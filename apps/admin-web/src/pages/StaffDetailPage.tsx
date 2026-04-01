@@ -90,6 +90,7 @@ export function StaffDetailPage() {
   const [placedTasks, setPlacedTasks] = useState<PlacedTask[]>([]);
   const [trackCount, setTrackCount] = useState(4);
   const [dragOverTrack, setDragOverTrack] = useState<number | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [cameraNotice, setCameraNotice] = useState<string | null>(null);
 
   useEffect(() => {
@@ -182,6 +183,40 @@ export function StaffDetailPage() {
       },
     ]);
   }, []);
+
+  const onClickLane = useCallback(
+    (e: React.MouseEvent, trackIndex: number) => {
+      if (!selectedTemplateId) return;
+      const t = TASK_LIBRARY.find((task) => task.id === selectedTemplateId);
+      if (!t) return;
+
+      const el = e.currentTarget as HTMLElement;
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const pct = Math.max(0, Math.min(1, x / rect.width));
+      let startMin = Math.floor(pct * SHIFT_TOTAL_MIN);
+      const dur = t.durationMin;
+      if (startMin + dur > SHIFT_TOTAL_MIN) {
+        startMin = Math.max(0, SHIFT_TOTAL_MIN - dur);
+      }
+
+      const placedId = `placed-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      setPlacedTasks((prev) => [
+        ...prev,
+        {
+          placedId,
+          templateId: t.id,
+          label: t.label,
+          startMin,
+          durationMin: dur,
+          color: t.color,
+          trackIndex,
+        },
+      ]);
+      setSelectedTemplateId(null);
+    },
+    [selectedTemplateId],
+  );
 
   const removePlaced = useCallback((placedId: string) => {
     setPlacedTasks((prev) => prev.filter((p) => p.placedId !== placedId));
@@ -314,16 +349,19 @@ export function StaffDetailPage() {
         <aside className="staff-library">
           <p className="staff-library-title">Master library</p>
           <p className="staff-library-hint">
-            Drag tasks onto a <strong>channel</strong> (row). Same row = sequence along the day; different rows =
-            simultaneous work — like video tracks.
+            Drag tasks onto a <strong>channel</strong> (row), or tap one task then tap a lane to place it. Same row =
+            sequence along the day; different rows = simultaneous work — like video tracks.
           </p>
           <div className="staff-library-list">
             {TASK_LIBRARY.map((t) => (
               <div
                 key={t.id}
-                className="staff-library-item"
+                className={`staff-library-item ${selectedTemplateId === t.id ? "staff-library-item--selected" : ""}`}
                 draggable
                 onDragStart={(e) => onDragStartLib(e, t)}
+                onClick={() =>
+                  setSelectedTemplateId((prev) => (prev === t.id ? null : t.id))
+                }
                 style={{ backgroundColor: t.color }}
               >
                 {t.label}
@@ -374,10 +412,13 @@ export function StaffDetailPage() {
                     </span>
                   </div>
                   <div
-                    className={`staff-track-lane ${dragOverTrack === trackIndex ? "staff-track-lane--drag" : ""}`}
+                    className={`staff-track-lane ${dragOverTrack === trackIndex ? "staff-track-lane--drag" : ""} ${
+                      selectedTemplateId ? "staff-track-lane--armed" : ""
+                    }`}
                     onDragOver={(e) => onDragOverLane(e, trackIndex)}
                     onDragLeave={onDragLeaveLane}
                     onDrop={(e) => onDropLane(e, trackIndex)}
+                    onClick={(e) => onClickLane(e, trackIndex)}
                   >
                     <div className="staff-track-lane-grid" aria-hidden />
                     {rowTasks.length === 0 ? (
@@ -397,9 +438,20 @@ export function StaffDetailPage() {
                             color: "#fff",
                           }}
                           title={`${p.label} · ${p.startMin}m–${p.startMin + p.durationMin}m · T${trackIndex + 1}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePlaced(p.placedId);
+                          }}
                         >
                           <span className="staff-timeline-block-label">{p.label}</span>
-                          <button type="button" onClick={() => removePlaced(p.placedId)} aria-label="Remove task">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removePlaced(p.placedId);
+                            }}
+                            aria-label="Remove task"
+                          >
                             ×
                           </button>
                         </div>
