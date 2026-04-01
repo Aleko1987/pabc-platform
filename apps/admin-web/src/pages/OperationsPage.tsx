@@ -23,8 +23,7 @@ function titleCaseWords(input: string): string {
 }
 
 export function OperationsPage() {
-  const [messageBody, setMessageBody] = useState("Team check-in: confirm site status by 18:00.");
-  const [voiceNoteLabel, setVoiceNoteLabel] = useState("Shift handover briefing");
+  const [searchQuery, setSearchQuery] = useState("");
   const [dispatchLog, setDispatchLog] = useState<string[]>([]);
 
   const areaGroups = useMemo<CommGroup[]>(() => {
@@ -69,83 +68,81 @@ export function OperationsPage() {
   }, []);
 
   const allGroups = useMemo(() => [...areaGroups, ...customerGroups, ...roleGroups], [areaGroups, customerGroups, roleGroups]);
-  const allRecipients = useMemo(() => uniqNames(allGroups.flatMap((g) => g.recipients)), [allGroups]);
+
+  const filteredGroups = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return allGroups;
+    return allGroups.filter(
+      (g) =>
+        g.label.toLowerCase().includes(q) ||
+        g.recipients.some((r) => r.toLowerCase().includes(q)),
+    );
+  }, [allGroups, searchQuery]);
+
+  const allFilteredRecipients = useMemo(
+    () => uniqNames(filteredGroups.flatMap((g) => g.recipients)),
+    [filteredGroups],
+  );
 
   const appendLog = (line: string) => {
     setDispatchLog((prev) => [line, ...prev].slice(0, 18));
   };
 
   const sendMessage = (targetLabel: string, recipients: string[]) => {
-    const body = messageBody.trim();
-    if (!body || recipients.length === 0) return;
+    if (recipients.length === 0) return;
+    const body = window.prompt("Message to send to all listed recipients:", "Team check-in: confirm site status by 18:00.");
+    if (!body || !body.trim()) return;
     appendLog(`Message sent to ${targetLabel} (${recipients.length})`);
   };
 
   const sendVoice = (targetLabel: string, recipients: string[]) => {
-    const note = voiceNoteLabel.trim();
-    if (!note || recipients.length === 0) return;
-    appendLog(`Voice note "${note}" sent to ${targetLabel} (${recipients.length})`);
+    if (recipients.length === 0) return;
+    const note = window.prompt("Voice note label:", "Shift handover briefing");
+    if (!note || !note.trim()) return;
+    appendLog(`Voice note "${note.trim()}" sent to ${targetLabel} (${recipients.length})`);
   };
-
-  const canSendMessageAll = messageBody.trim().length > 0 && allRecipients.length > 0;
-  const canSendVoiceAll = voiceNoteLabel.trim().length > 0 && allRecipients.length > 0;
 
   return (
     <div className="page operations-page">
       <h1>Operations communications</h1>
       <p className="page-lead">
-        Global actions at the top send to all recipients listed in the subcategories below. This is a shell flow for
-        WhatsApp/Supabase Edge Function wiring.
+        Use the top-right icon buttons to broadcast to all subcategories currently listed below.
       </p>
 
-      <section className="operations-global-card" aria-label="Global communications actions">
-        <div className="operations-field-row">
-          <label className="operations-label" htmlFor="global-message">
-            Global message
-          </label>
-          <textarea
-            id="global-message"
-            className="operations-textarea"
-            rows={3}
-            value={messageBody}
-            onChange={(e) => setMessageBody(e.target.value)}
-            placeholder="Type the message to send to all recipients below…"
-          />
-        </div>
-        <div className="operations-field-row">
-          <label className="operations-label" htmlFor="global-voice-note">
-            Voice note label
-          </label>
+      <section className="operations-toolbar-card" aria-label="Global communications actions">
+        <div className="operations-toolbar">
           <input
-            id="global-voice-note"
-            className="operations-input"
-            value={voiceNoteLabel}
-            onChange={(e) => setVoiceNoteLabel(e.target.value)}
-            placeholder="e.g. Security lead update"
+            className="operations-search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search subcategories or recipients…"
+            aria-label="Search communications subcategories"
           />
-        </div>
-        <div className="operations-global-actions">
           <button
             type="button"
-            className="operations-btn operations-btn--message"
-            onClick={() => sendMessage("all subcategories", allRecipients)}
-            disabled={!canSendMessageAll}
+            className="operations-icon-btn"
+            title={`Send message to all listed recipients (${allFilteredRecipients.length})`}
+            onClick={() => sendMessage("all listed subcategories", allFilteredRecipients)}
+            disabled={allFilteredRecipients.length === 0}
+            aria-label="Send message to all listed subcategories"
           >
-            Send message to all ({allRecipients.length})
+            ✉
           </button>
           <button
             type="button"
-            className="operations-btn operations-btn--voice"
-            onClick={() => sendVoice("all subcategories", allRecipients)}
-            disabled={!canSendVoiceAll}
+            className="operations-icon-btn operations-icon-btn--voice"
+            title={`Send voice note to all listed recipients (${allFilteredRecipients.length})`}
+            onClick={() => sendVoice("all listed subcategories", allFilteredRecipients)}
+            disabled={allFilteredRecipients.length === 0}
+            aria-label="Send voice note to all listed subcategories"
           >
-            Send voice note to all ({allRecipients.length})
+            🎤
           </button>
         </div>
       </section>
 
       <section className="operations-groups" aria-label="Recipient subcategories">
-        {allGroups.map((g) => (
+        {filteredGroups.map((g) => (
           <article key={g.id} className="operations-group-card">
             <div className="operations-group-head">
               <h2>{g.label}</h2>
@@ -156,7 +153,7 @@ export function OperationsPage() {
                 type="button"
                 className="operations-btn operations-btn--ghost"
                 onClick={() => sendMessage(g.label, g.recipients)}
-                disabled={messageBody.trim().length === 0 || g.recipients.length === 0}
+                disabled={g.recipients.length === 0}
               >
                 Message group
               </button>
@@ -164,7 +161,7 @@ export function OperationsPage() {
                 type="button"
                 className="operations-btn operations-btn--ghost"
                 onClick={() => sendVoice(g.label, g.recipients)}
-                disabled={voiceNoteLabel.trim().length === 0 || g.recipients.length === 0}
+                disabled={g.recipients.length === 0}
               >
                 Voice note group
               </button>

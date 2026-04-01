@@ -869,6 +869,62 @@ code {
   background: rgba(17, 30, 51, 0.62);
 }
 
+.operations-toolbar-card {
+  border-radius: 12px;
+  border: 1px solid rgba(61, 90, 128, 0.42);
+  background: rgba(17, 30, 51, 0.62);
+  padding: 0.8rem;
+}
+
+.operations-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.operations-search {
+  flex: 1;
+  min-width: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(61, 90, 128, 0.6);
+  background: rgba(10, 22, 40, 0.7);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.58rem 0.9rem;
+}
+
+.operations-search:focus {
+  outline: none;
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.14);
+}
+
+.operations-icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(61, 90, 128, 0.65);
+  background: rgba(10, 22, 40, 0.85);
+  color: #d5e7ff;
+  font-size: 1.15rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.operations-icon-btn--voice {
+  color: var(--gold);
+  border-color: rgba(212, 175, 55, 0.55);
+}
+
+.operations-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .operations-global-card,
 .operations-log-card {
   padding: 1rem 1.1rem;
@@ -1019,6 +1075,20 @@ code {
 }
 
 @media (max-width: 920px) {
+  .operations-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .operations-search {
+    order: 1;
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .operations-icon-btn {
+    order: 2;
+  }
+
   .operations-groups {
     grid-template-columns: 1fr;
   }
