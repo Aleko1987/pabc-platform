@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/staff_directory.dart';
 import '../../widgets/staff_field_mini_map.dart';
-import '../roster/org_roster_screen.dart';
 import '../schedule/my_schedule_screen.dart';
 import 'staff_timeline_workspace.dart';
 
@@ -185,16 +184,6 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => const OrgRosterScreen(),
-                          ),
-                        );
-                      },
-                      child: const Text('View roster'),
-                    ),
                     OutlinedButton(
                       onPressed: () {
                         Navigator.of(context).push(

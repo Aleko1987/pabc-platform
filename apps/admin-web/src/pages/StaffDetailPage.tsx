@@ -307,13 +307,6 @@ export function StaffDetailPage() {
               🎤
             </button>
             <Link
-              to="/roster"
-              className="staff-btn-view-roster"
-              title="See full team roster"
-            >
-              View roster
-            </Link>
-            <Link
               to={`/staff/${staff.slug}/schedule`}
               className="staff-btn-view-schedule"
               title="Your postings and who else is at your sites"
