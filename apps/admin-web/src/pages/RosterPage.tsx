@@ -23,7 +23,11 @@ type DragPayload =
   | { kind: "pool"; staffSlug: string }
   | { kind: "calendar"; assignmentId: string; fromDateKey: string };
 
-export function RosterPage() {
+type Props = {
+  embedded?: boolean;
+};
+
+export function RosterPage({ embedded = false }: Props) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [monthIndex, setMonthIndex] = useState(today.getMonth());
@@ -165,17 +169,21 @@ export function RosterPage() {
   };
 
   return (
-    <div className="page roster-page roster-page--wide">
-      <Link to="/dashboard" className="text-link roster-back">
-        ← Dashboard
-      </Link>
+    <div className={`page roster-page roster-page--wide ${embedded ? "roster-page--embedded" : ""}`}>
+      {!embedded ? (
+        <Link to="/dashboard" className="text-link roster-back">
+          ← Dashboard
+        </Link>
+      ) : null}
 
       <header className="roster-header">
         <h1>Roster</h1>
-        <p className="page-lead">
-          Monthly deployment calendar. Mock assignments rotate per day from each officer’s eligible sites. Select all
-          clients to see everyone on the map; search and pick one client to focus the grid.
-        </p>
+        {!embedded ? (
+          <p className="page-lead">
+            Monthly deployment calendar. Mock assignments rotate per day from each officer’s eligible sites. Select all
+            clients to see everyone on the map; search and pick one client to focus the grid.
+          </p>
+        ) : null}
       </header>
 
       <div className="roster-layout">

@@ -52,15 +52,6 @@ export function AppShell() {
             Operations
           </NavLink>
           <NavLink
-            to="/roster"
-            className={({ isActive }) =>
-              isActive ? "nav-link active" : "nav-link"
-            }
-            onClick={() => setSidebarOpen(false)}
-          >
-            Roster
-          </NavLink>
-          <NavLink
             to="/settings"
             className={({ isActive }) =>
               isActive ? "nav-link active" : "nav-link"
