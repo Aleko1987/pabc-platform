@@ -160,21 +160,14 @@ export function RosterPage({
     });
   };
 
-  const resetVisibleMonth = () => {
+  const clearVisibleMonthCalendar = () => {
     setAssignmentsByDay((prev) => {
       const next = { ...prev };
       for (const key of monthDateKeys) {
-        next[key] = buildAssignmentsForDay(key).map((p) => withAssignmentId(p, key));
+        next[key] = [];
       }
       return next;
     });
-  };
-
-  const clearSavedRoster = () => {
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
-    setAssignmentsByDay(buildMonthAssignments(year, monthIndex));
   };
 
   return (
@@ -282,11 +275,12 @@ export function RosterPage({
             </button>
           </div>
           <div className="roster-cal-toolbar">
-            <button type="button" className="roster-cal-tool-btn" onClick={resetVisibleMonth}>
-              Reset month
-            </button>
-            <button type="button" className="roster-cal-tool-btn roster-cal-tool-btn--danger" onClick={clearSavedRoster}>
-              Clear saved roster
+            <button
+              type="button"
+              className="roster-cal-tool-btn roster-cal-tool-btn--danger"
+              onClick={clearVisibleMonthCalendar}
+            >
+              Clear calendar
             </button>
           </div>
 
