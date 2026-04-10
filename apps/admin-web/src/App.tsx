@@ -6,7 +6,6 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { StaffDetailPage } from "./pages/StaffDetailPage";
 import { StaffSchedulePage } from "./pages/StaffSchedulePage";
 import { LoginPage } from "./pages/LoginPage";
-import { OperationsPage } from "./pages/OperationsPage";
 import { SettingsPage } from "./pages/SettingsPage";
 
 export default function App() {
@@ -19,7 +18,6 @@ export default function App() {
         <Route path="staff/:staffSlug/schedule" element={<StaffSchedulePage />} />
         <Route path="staff/:staffSlug" element={<StaffDetailPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="operations" element={<OperationsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
     </Routes>

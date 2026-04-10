@@ -31,9 +31,13 @@ export function DashboardPage() {
   const [query, setQuery] = useState("");
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
   const [showSideMenu, setShowSideMenu] = useState(false);
+  const [selectedCustomerSlug, setSelectedCustomerSlug] = useState<string | null>(null);
   const searchQuery = query.trim();
   const globalMatches = useGlobalMatches(searchQuery);
   const isGlobalSearch = searchQuery.length > 0;
+  const selectedCustomerName = selectedCustomerSlug
+    ? CUSTOMER_RECORDS.find((c) => c.slug === selectedCustomerSlug)?.name ?? selectedCustomerSlug
+    : null;
 
   const allRecipients = useMemo(() => {
     const names = CUSTOMER_RECORDS.flatMap((c) => c.sites.flatMap((s) => s.guards));
@@ -41,6 +45,12 @@ export function DashboardPage() {
   }, []);
 
   const sendGlobalMessage = () => {
+    if (selectedCustomerName) {
+      const body = window.prompt(`Message to ${selectedCustomerName}:`, "Team check-in: confirm site status by 18:00.");
+      if (!body || !body.trim()) return;
+      setBroadcastNotice(`Message sent to ${selectedCustomerName}.`);
+      return;
+    }
     if (allRecipients.length === 0) return;
     const body = window.prompt("Message to send to all groups:", "Team check-in: confirm site status by 18:00.");
     if (!body || !body.trim()) return;
@@ -48,6 +58,12 @@ export function DashboardPage() {
   };
 
   const sendGlobalVoice = () => {
+    if (selectedCustomerName) {
+      const note = window.prompt(`Voice note label for ${selectedCustomerName}:`, "Shift handover briefing");
+      if (!note || !note.trim()) return;
+      setBroadcastNotice(`Voice note sent to ${selectedCustomerName}.`);
+      return;
+    }
     if (allRecipients.length === 0) return;
     const note = window.prompt("Voice note label:", "Shift handover briefing");
     if (!note || !note.trim()) return;
@@ -76,7 +92,7 @@ export function DashboardPage() {
 
   return (
     <div className="dashboard-shell">
-      <RosterPage embedded />
+      <RosterPage embedded selectedClientSlug={selectedCustomerSlug} onSelectClientSlug={setSelectedCustomerSlug} />
 
       <button
         type="button"
@@ -91,24 +107,27 @@ export function DashboardPage() {
         <div className="page dashboard-page">
           <header className="dashboard-header">
             <h1 className="dashboard-title">Dashboard</h1>
+            <Link to="/settings" className="dashboard-settings-cog" aria-label="Open settings">
+              ⚙
+            </Link>
             <div className="dashboard-broadcast-actions">
               <button
                 type="button"
                 className="dashboard-broadcast-btn"
-                title={`Send message to all groups (${allRecipients.length})`}
-                aria-label="Send message to all groups"
+                title={selectedCustomerName ? `Send message to ${selectedCustomerName}` : `Send message to all groups (${allRecipients.length})`}
+                aria-label={selectedCustomerName ? `Send message to ${selectedCustomerName}` : "Send message to all groups"}
                 onClick={sendGlobalMessage}
-                disabled={allRecipients.length === 0}
+                disabled={!selectedCustomerName && allRecipients.length === 0}
               >
                 ✉
               </button>
               <button
                 type="button"
                 className="dashboard-broadcast-btn dashboard-broadcast-btn--voice"
-                title={`Send voice note to all groups (${allRecipients.length})`}
-                aria-label="Send voice note to all groups"
+                title={selectedCustomerName ? `Send voice note to ${selectedCustomerName}` : `Send voice note to all groups (${allRecipients.length})`}
+                aria-label={selectedCustomerName ? `Send voice note to ${selectedCustomerName}` : "Send voice note to all groups"}
                 onClick={sendGlobalVoice}
-                disabled={allRecipients.length === 0}
+                disabled={!selectedCustomerName && allRecipients.length === 0}
               >
                 🎤
               </button>
@@ -153,6 +172,14 @@ export function DashboardPage() {
               Staff
             </button>
           </div>
+          {selectedCustomerName ? (
+            <p className="dashboard-filter-chip">
+              Roster filter: <strong>{selectedCustomerName}</strong>{" "}
+              <button type="button" onClick={() => setSelectedCustomerSlug(null)}>
+                Clear
+              </button>
+            </p>
+          ) : null}
 
           {isGlobalSearch && globalMatches ? (
             <section className="dashboard-global-results" aria-label="Global search results">
@@ -166,9 +193,13 @@ export function DashboardPage() {
                       <ul className="dashboard-pill-list">
                         {globalMatches.customers.map((c) => (
                           <li key={c.slug}>
-                            <Link to={`/customers/${c.slug}`} className="dashboard-pill-link">
+                            <button
+                              type="button"
+                              className="dashboard-pill-link dashboard-pill-link--button"
+                              onClick={() => setSelectedCustomerSlug(c.slug)}
+                            >
                               {c.name}
-                            </Link>
+                            </button>
                           </li>
                         ))}
                       </ul>
@@ -201,9 +232,13 @@ export function DashboardPage() {
                   <ul className="dashboard-pill-list">
                     {filteredCustomersTab.map((c) => (
                       <li key={c.slug}>
-                        <Link to={`/customers/${c.slug}`} className="dashboard-pill-link">
+                        <button
+                          type="button"
+                          className="dashboard-pill-link dashboard-pill-link--button"
+                          onClick={() => setSelectedCustomerSlug(c.slug)}
+                        >
                           {c.name}
-                        </Link>
+                        </button>
                       </li>
                     ))}
                   </ul>
