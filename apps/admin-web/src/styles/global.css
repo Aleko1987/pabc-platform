@@ -520,9 +520,15 @@ code {
 
 .roster-layout {
   display: grid;
-  grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+  grid-template-columns: minmax(240px, 290px) minmax(0, 1fr) minmax(240px, 290px);
   gap: 1.5rem;
   align-items: start;
+}
+
+@media (max-width: 1320px) {
+  .roster-layout {
+    grid-template-columns: minmax(240px, 290px) minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 1024px) {
@@ -660,6 +666,55 @@ code {
   align-items: center;
 }
 
+.roster-staff-panel {
+  position: sticky;
+  top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(61, 90, 128, 0.45);
+  background: rgba(17, 30, 51, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: calc(100vh - 4rem);
+  overflow: auto;
+}
+
+.roster-staff-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  overflow: auto;
+}
+
+.roster-staff-card {
+  border: 1px solid rgba(61, 90, 128, 0.55);
+  background: rgba(10, 22, 40, 0.65);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  cursor: grab;
+}
+
+.roster-staff-card:active {
+  cursor: grabbing;
+}
+
+.roster-staff-card strong {
+  font-size: 0.85rem;
+  color: var(--gold);
+}
+
+.roster-staff-card span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
 .roster-link-customers {
   font-size: 0.78rem;
   color: var(--spotlight);
@@ -739,6 +794,39 @@ code {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.75rem;
+}
+
+.roster-cal-toolbar {
+  margin: 0 0 0.75rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.roster-cal-tool-btn {
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid rgba(61, 90, 128, 0.55);
+  background: rgba(17, 30, 51, 0.85);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.roster-cal-tool-btn:hover {
+  color: var(--text);
+  border-color: rgba(212, 175, 55, 0.45);
+}
+
+.roster-cal-tool-btn--danger {
+  border-color: rgba(229, 115, 115, 0.55);
+  color: rgba(248, 170, 170, 0.95);
+}
+
+.roster-cal-tool-btn--danger:hover {
+  border-color: rgba(229, 115, 115, 0.95);
+  color: #ffd0d0;
 }
 
 .roster-cal-title {
@@ -825,6 +913,12 @@ code {
   min-width: 0;
 }
 
+.roster-cal-cell--dragover {
+  outline: 2px solid rgba(212, 175, 55, 0.7);
+  outline-offset: -2px;
+  background: rgba(30, 48, 74, 0.95);
+}
+
 .roster-cal-cell--empty {
   min-height: min(14vh, 140px);
   background: rgba(10, 22, 40, 0.4);
@@ -856,6 +950,43 @@ code {
   color: var(--text-muted);
 }
 
+.roster-cal-item--card {
+  border: 1px solid rgba(61, 90, 128, 0.5);
+  border-radius: 8px;
+  background: rgba(10, 22, 40, 0.7);
+  padding: 0.35rem 0.45rem;
+  cursor: grab;
+  position: relative;
+  padding-right: 1.5rem;
+}
+
+.roster-cal-item--card:active {
+  cursor: grabbing;
+}
+
+.roster-cal-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.roster-cal-remove {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.25rem;
+  border: none;
+  background: transparent;
+  color: rgba(184, 197, 214, 0.85);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.1rem 0.2rem;
+}
+
+.roster-cal-remove:hover {
+  color: var(--gold);
+}
+
 .roster-cal-name {
   color: var(--gold);
   font-weight: 600;
@@ -869,6 +1000,17 @@ code {
 .roster-cal-meta {
   color: rgba(184, 197, 214, 0.85);
   word-break: break-word;
+  display: block;
+  margin-top: 0.15rem;
+}
+
+.roster-cal-empty-hint {
+  color: rgba(184, 197, 214, 0.65);
+  font-size: 0.68rem;
+  border: 1px dashed rgba(61, 90, 128, 0.55);
+  border-radius: 7px;
+  padding: 0.35rem 0.4rem;
+  text-align: center;
 }
 
 @media (max-width: 1200px) {
@@ -884,6 +1026,14 @@ code {
 @media (max-width: 700px) {
   .roster-cal-grid {
     min-height: auto;
+  }
+
+  .roster-cal-toolbar {
+    justify-content: stretch;
+  }
+
+  .roster-cal-tool-btn {
+    flex: 1;
   }
 
   .roster-cal-cell,
