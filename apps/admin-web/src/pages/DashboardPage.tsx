@@ -7,6 +7,7 @@ import { RosterPage } from "./RosterPage";
 import { STAFF_RECORDS } from "../data/staffDirectory";
 
 type Tab = "customers" | "staff";
+const DND_MIME = "application/x-pabc-roster";
 
 function useGlobalMatches(trimmedQuery: string) {
   return useMemo(() => {
@@ -31,24 +32,31 @@ export function DashboardPage() {
   const [query, setQuery] = useState("");
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
   const [showSideMenu, setShowSideMenu] = useState(false);
-  const [selectedCustomerSlug, setSelectedCustomerSlug] = useState<string | null>(null);
+  const [selectedCustomerSlugs, setSelectedCustomerSlugs] = useState<string[]>([]);
   const searchQuery = query.trim();
   const globalMatches = useGlobalMatches(searchQuery);
   const isGlobalSearch = searchQuery.length > 0;
-  const selectedCustomerName = selectedCustomerSlug
-    ? CUSTOMER_RECORDS.find((c) => c.slug === selectedCustomerSlug)?.name ?? selectedCustomerSlug
-    : null;
+  const selectedCustomerNames = selectedCustomerSlugs
+    .map((slug) => CUSTOMER_RECORDS.find((c) => c.slug === slug)?.name ?? slug)
+    .filter(Boolean);
 
   const allRecipients = useMemo(() => {
     const names = CUSTOMER_RECORDS.flatMap((c) => c.sites.flatMap((s) => s.guards));
     return Array.from(new Set(names.map((n) => n.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
   }, []);
 
+  const toggleCustomerFilter = (slug: string) => {
+    setSelectedCustomerSlugs((prev) =>
+      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
+    );
+  };
+
   const sendGlobalMessage = () => {
-    if (selectedCustomerName) {
-      const body = window.prompt(`Message to ${selectedCustomerName}:`, "Team check-in: confirm site status by 18:00.");
+    if (selectedCustomerNames.length > 0) {
+      const targetLabel = selectedCustomerNames.join(", ");
+      const body = window.prompt(`Message to ${targetLabel}:`, "Team check-in: confirm site status by 18:00.");
       if (!body || !body.trim()) return;
-      setBroadcastNotice(`Message sent to ${selectedCustomerName}.`);
+      setBroadcastNotice(`Message sent to selected customers (${selectedCustomerNames.length}).`);
       return;
     }
     if (allRecipients.length === 0) return;
@@ -58,10 +66,11 @@ export function DashboardPage() {
   };
 
   const sendGlobalVoice = () => {
-    if (selectedCustomerName) {
-      const note = window.prompt(`Voice note label for ${selectedCustomerName}:`, "Shift handover briefing");
+    if (selectedCustomerNames.length > 0) {
+      const targetLabel = selectedCustomerNames.join(", ");
+      const note = window.prompt(`Voice note label for ${targetLabel}:`, "Shift handover briefing");
       if (!note || !note.trim()) return;
-      setBroadcastNotice(`Voice note sent to ${selectedCustomerName}.`);
+      setBroadcastNotice(`Voice note sent to selected customers (${selectedCustomerNames.length}).`);
       return;
     }
     if (allRecipients.length === 0) return;
@@ -91,8 +100,12 @@ export function DashboardPage() {
     globalMatches.staff.length === 0;
 
   return (
-    <div className="dashboard-shell">
-      <RosterPage embedded selectedClientSlug={selectedCustomerSlug} onSelectClientSlug={setSelectedCustomerSlug} />
+    <div className={`dashboard-shell ${showSideMenu ? "dashboard-shell--menu-open" : ""}`}>
+      <RosterPage
+        embedded
+        selectedClientSlugs={selectedCustomerSlugs}
+        onSelectedClientSlugsChange={setSelectedCustomerSlugs}
+      />
 
       <button
         type="button"
@@ -114,20 +127,20 @@ export function DashboardPage() {
               <button
                 type="button"
                 className="dashboard-broadcast-btn"
-                title={selectedCustomerName ? `Send message to ${selectedCustomerName}` : `Send message to all groups (${allRecipients.length})`}
-                aria-label={selectedCustomerName ? `Send message to ${selectedCustomerName}` : "Send message to all groups"}
+                title={selectedCustomerNames.length > 0 ? "Send message to selected customers" : `Send message to all groups (${allRecipients.length})`}
+                aria-label={selectedCustomerNames.length > 0 ? "Send message to selected customers" : "Send message to all groups"}
                 onClick={sendGlobalMessage}
-                disabled={!selectedCustomerName && allRecipients.length === 0}
+                disabled={selectedCustomerNames.length === 0 && allRecipients.length === 0}
               >
                 ✉
               </button>
               <button
                 type="button"
                 className="dashboard-broadcast-btn dashboard-broadcast-btn--voice"
-                title={selectedCustomerName ? `Send voice note to ${selectedCustomerName}` : `Send voice note to all groups (${allRecipients.length})`}
-                aria-label={selectedCustomerName ? `Send voice note to ${selectedCustomerName}` : "Send voice note to all groups"}
+                title={selectedCustomerNames.length > 0 ? "Send voice note to selected customers" : `Send voice note to all groups (${allRecipients.length})`}
+                aria-label={selectedCustomerNames.length > 0 ? "Send voice note to selected customers" : "Send voice note to all groups"}
                 onClick={sendGlobalVoice}
-                disabled={!selectedCustomerName && allRecipients.length === 0}
+                disabled={selectedCustomerNames.length === 0 && allRecipients.length === 0}
               >
                 🎤
               </button>
@@ -172,10 +185,10 @@ export function DashboardPage() {
               Staff
             </button>
           </div>
-          {selectedCustomerName ? (
+          {selectedCustomerNames.length > 0 ? (
             <p className="dashboard-filter-chip">
-              Roster filter: <strong>{selectedCustomerName}</strong>{" "}
-              <button type="button" onClick={() => setSelectedCustomerSlug(null)}>
+              Roster filter: <strong>{selectedCustomerNames.join(", ")}</strong>{" "}
+              <button type="button" onClick={() => setSelectedCustomerSlugs([])}>
                 Clear
               </button>
             </p>
@@ -193,13 +206,21 @@ export function DashboardPage() {
                       <ul className="dashboard-pill-list">
                         {globalMatches.customers.map((c) => (
                           <li key={c.slug}>
-                            <button
-                              type="button"
-                              className="dashboard-pill-link dashboard-pill-link--button"
-                              onClick={() => setSelectedCustomerSlug(c.slug)}
-                            >
-                              {c.name}
-                            </button>
+                            <label className="dashboard-customer-filter-row">
+                              <button
+                                type="button"
+                                className="dashboard-pill-link dashboard-pill-link--button"
+                                onClick={() => toggleCustomerFilter(c.slug)}
+                              >
+                                {c.name}
+                              </button>
+                              <input
+                                type="checkbox"
+                                checked={selectedCustomerSlugs.includes(c.slug)}
+                                onChange={() => toggleCustomerFilter(c.slug)}
+                                aria-label={`Filter roster by ${c.name}`}
+                              />
+                            </label>
                           </li>
                         ))}
                       </ul>
@@ -211,7 +232,15 @@ export function DashboardPage() {
                       <ul className="dashboard-pill-list">
                         {globalMatches.staff.map((s) => (
                           <li key={s.slug}>
-                            <Link to={`/staff/${s.slug}`} className="dashboard-pill-link">
+                            <Link
+                              to={`/staff/${s.slug}`}
+                              className="dashboard-pill-link"
+                              draggable
+                              onDragStart={(e) => {
+                                e.dataTransfer.setData(DND_MIME, JSON.stringify({ kind: "pool", staffSlug: s.slug }));
+                                e.dataTransfer.effectAllowed = "copyMove";
+                              }}
+                            >
                               {s.name}
                               <span className="dashboard-pill-meta">{s.role}</span>
                             </Link>
@@ -232,13 +261,21 @@ export function DashboardPage() {
                   <ul className="dashboard-pill-list">
                     {filteredCustomersTab.map((c) => (
                       <li key={c.slug}>
-                        <button
-                          type="button"
-                          className="dashboard-pill-link dashboard-pill-link--button"
-                          onClick={() => setSelectedCustomerSlug(c.slug)}
-                        >
-                          {c.name}
-                        </button>
+                        <label className="dashboard-customer-filter-row">
+                          <button
+                            type="button"
+                            className="dashboard-pill-link dashboard-pill-link--button"
+                            onClick={() => toggleCustomerFilter(c.slug)}
+                          >
+                            {c.name}
+                          </button>
+                          <input
+                            type="checkbox"
+                            checked={selectedCustomerSlugs.includes(c.slug)}
+                            onChange={() => toggleCustomerFilter(c.slug)}
+                            aria-label={`Filter roster by ${c.name}`}
+                          />
+                        </label>
                       </li>
                     ))}
                   </ul>
@@ -252,7 +289,15 @@ export function DashboardPage() {
                   <ul className="dashboard-pill-list">
                     {filteredStaffTab.map((s) => (
                       <li key={s.slug}>
-                        <Link to={`/staff/${s.slug}`} className="dashboard-pill-link">
+                        <Link
+                          to={`/staff/${s.slug}`}
+                          className="dashboard-pill-link"
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData(DND_MIME, JSON.stringify({ kind: "pool", staffSlug: s.slug }));
+                            e.dataTransfer.effectAllowed = "copyMove";
+                          }}
+                        >
                           {s.name}
                           <span className="dashboard-pill-meta">{s.role}</span>
                         </Link>

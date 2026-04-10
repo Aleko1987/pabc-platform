@@ -522,6 +522,11 @@ code {
 .dashboard-shell {
   position: relative;
   min-height: calc(100vh - 4rem);
+  transition: padding-right 0.2s ease;
+}
+
+.dashboard-shell--menu-open {
+  padding-right: calc(min(360px, 100vw - 2rem) + 1.5rem);
 }
 
 .dashboard-logo-fab {
@@ -586,7 +591,24 @@ code {
   margin-bottom: 0.75rem;
 }
 
+.dashboard-customer-filter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.dashboard-customer-filter-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--gold);
+}
+
 @media (max-width: 700px) {
+  .dashboard-shell--menu-open {
+    padding-right: 0;
+  }
+
   .dashboard-side-menu {
     top: 0.65rem;
     right: 0.65rem;

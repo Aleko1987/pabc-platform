@@ -25,14 +25,14 @@ type DragPayload =
 
 type Props = {
   embedded?: boolean;
-  selectedClientSlug?: string | null;
-  onSelectClientSlug?: (slug: string | null) => void;
+  selectedClientSlugs?: string[];
+  onSelectedClientSlugsChange?: (slugs: string[]) => void;
 };
 
 export function RosterPage({
   embedded = false,
-  selectedClientSlug,
-  onSelectClientSlug,
+  selectedClientSlugs,
+  onSelectedClientSlugsChange,
 }: Props) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
@@ -93,11 +93,11 @@ export function RosterPage({
     setMonthIndex(d.getMonth());
   };
 
+  const activeClientSlugs = embedded ? (selectedClientSlugs ?? []) : filterClientSlug ? [filterClientSlug] : [];
   const selectedClientName =
-    (embedded ? selectedClientSlug : filterClientSlug) == null
-      ? null
-      : CUSTOMER_RECORDS.find((c) => c.slug === (embedded ? selectedClientSlug : filterClientSlug))?.name ?? null;
-  const activeClientSlug = embedded ? (selectedClientSlug ?? null) : filterClientSlug;
+    activeClientSlugs.length === 1
+      ? CUSTOMER_RECORDS.find((c) => c.slug === activeClientSlugs[0])?.name ?? null
+      : null;
 
   const readDragPayload = (e: React.DragEvent): DragPayload | null => {
     const raw = e.dataTransfer.getData(DND_MIME);
@@ -132,7 +132,7 @@ export function RosterPage({
       const targetList = [...(next[targetDateKey] ?? [])];
 
       if (payload.kind === "pool") {
-        const posting = createPostingForDrop(payload.staffSlug, targetDateKey, activeClientSlug, targetList);
+        const posting = createPostingForDrop(payload.staffSlug, targetDateKey, activeClientSlugs[0] ?? null, targetList);
         if (!posting) return prev;
         next[targetDateKey] = [...targetList, posting];
         return next;
@@ -201,18 +201,18 @@ export function RosterPage({
             <label className="roster-checkbox-label">
               <input
                 type="checkbox"
-                checked={activeClientSlug === null}
+                checked={activeClientSlugs.length === 0}
                 onChange={(e) => {
                   if (e.target.checked) {
                     if (embedded) {
-                      onSelectClientSlug?.(null);
+                      onSelectedClientSlugsChange?.([]);
                     } else {
                       setFilterClientSlug(null);
                     }
                   } else {
                     const next = filteredClients[0]?.slug ?? CUSTOMER_RECORDS[0]?.slug ?? null;
                     if (embedded) {
-                      onSelectClientSlug?.(next);
+                      onSelectedClientSlugsChange?.(next ? [next] : []);
                     } else {
                       setFilterClientSlug(next);
                     }
@@ -244,10 +244,14 @@ export function RosterPage({
               <li key={c.slug}>
                 <button
                   type="button"
-                  className={`roster-client-btn ${activeClientSlug === c.slug ? "roster-client-btn--active" : ""}`}
+                  className={`roster-client-btn ${activeClientSlugs.includes(c.slug) ? "roster-client-btn--active" : ""}`}
                   onClick={() => {
                     if (embedded) {
-                      onSelectClientSlug?.(c.slug);
+                      if (activeClientSlugs.includes(c.slug)) {
+                        onSelectedClientSlugsChange?.(activeClientSlugs.filter((s) => s !== c.slug));
+                      } else {
+                        onSelectedClientSlugsChange?.([...activeClientSlugs, c.slug]);
+                      }
                     } else {
                       setFilterClientSlug(c.slug);
                     }
@@ -286,15 +290,15 @@ export function RosterPage({
             </button>
           </div>
 
-          {activeClientSlug != null ? (
+          {activeClientSlugs.length > 0 ? (
             <p className="roster-cal-filter-banner">
-              Showing: <strong>{selectedClientName}</strong> ·{" "}
+              Showing: <strong>{selectedClientName ?? `${activeClientSlugs.length} selected clients`}</strong> ·{" "}
               <button
                 type="button"
                 className="roster-clear-filter"
                 onClick={() => {
                   if (embedded) {
-                    onSelectClientSlug?.(null);
+                    onSelectedClientSlugsChange?.([]);
                   } else {
                     setFilterClientSlug(null);
                   }
@@ -318,9 +322,9 @@ export function RosterPage({
               const dateKey = dateKeyFromParts(year, monthIndex, day);
               const dayAssignments = assignmentsByDay[dateKey] ?? [];
               const postings =
-                activeClientSlug == null
+                activeClientSlugs.length === 0
                   ? dayAssignments
-                  : dayAssignments.filter((p) => p.customerSlug === activeClientSlug);
+                  : dayAssignments.filter((p) => activeClientSlugs.includes(p.customerSlug));
 
               return (
                 <div
@@ -356,7 +360,7 @@ export function RosterPage({
                             {p.staffName}
                           </Link>
                         </div>
-                        {activeClientSlug == null ? (
+                        {activeClientSlugs.length === 0 ? (
                           <span className="roster-cal-meta">{truncate(p.customerName, 22)}</span>
                         ) : (
                           <span className="roster-cal-meta">{p.siteName}</span>
