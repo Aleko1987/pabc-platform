@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { StaffFieldMiniMap } from "../components/StaffFieldMiniMap";
-import { getStaffBySlug, STAFF_RECORDS } from "../data/staffDirectory";
+import { getStaffBySlug } from "../data/staffDirectory";
 import "../styles/staff-sheet.css";
 
 /** 8-hour shift window for timeline (minutes). */
@@ -91,7 +90,6 @@ export function StaffDetailPage() {
   const [trackCount, setTrackCount] = useState(4);
   const [dragOverTrack, setDragOverTrack] = useState<number | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-  const [cameraNotice, setCameraNotice] = useState<string | null>(null);
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
 
   useEffect(() => {
@@ -100,8 +98,6 @@ export function StaffDetailPage() {
   }, []);
 
   const msToShiftEnd = shiftEnd.getTime() - now;
-  const shiftDurationMs = shiftEnd.getTime() - shiftStart.getTime();
-  const shiftProgress01 = Math.min(1, Math.max(0, (now - shiftStart.getTime()) / shiftDurationMs));
 
   const handleClockToggle = () => {
     if (clockedIn) {
@@ -227,13 +223,6 @@ export function StaffDetailPage() {
     setTrackCount((c) => Math.min(c + 1, 12));
   }, []);
 
-  const handleViewRoomCamera = useCallback(() => {
-    // TODO: resolve assigned site → room camera stream (signed WebRTC/RTSP URL via Edge Function).
-    setCameraNotice(
-      `Live room feed is not connected yet (staff: ${staff?.slug ?? "—"}). Next: map this officer to a site/room, then open the CCTV stream for that camera.`,
-    );
-  }, [staff]);
-
   const sendStaffMessage = useCallback(() => {
     if (!staff) return;
     const body = window.prompt(`Message to ${staff.name}:`, "Team check-in: confirm site status by 18:00.");
@@ -263,8 +252,6 @@ export function StaffDetailPage() {
   const rulerLabels = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00"];
 
   const tracks = Array.from({ length: trackCount }, (_, i) => i);
-
-  const firstName = staff.name.trim().split(/\s+/)[0] ?? staff.name;
 
   return (
     <div className="page staff-sheet">
@@ -313,25 +300,8 @@ export function StaffDetailPage() {
             >
               View schedule
             </Link>
-            <button
-              type="button"
-              className="staff-btn-view-camera"
-              onClick={handleViewRoomCamera}
-              title="Open live camera for this officer’s assigned room (requires CCTV integration)"
-              aria-label={`Open live room camera for ${staff.name}`}
-            >
-              View {firstName}
-            </button>
           </div>
         </div>
-        {cameraNotice ? (
-          <div className="staff-camera-notice" role="status">
-            <span>{cameraNotice}</span>
-            <button type="button" className="staff-camera-notice-dismiss" onClick={() => setCameraNotice(null)}>
-              Dismiss
-            </button>
-          </div>
-        ) : null}
         {broadcastNotice ? (
           <div className="staff-camera-notice" role="status">
             <span>{broadcastNotice}</span>
@@ -370,11 +340,6 @@ export function StaffDetailPage() {
             <p className="staff-countdown-label">
               Target {shiftEnd.toLocaleString(undefined, { weekday: "short", hour: "2-digit", minute: "2-digit" })}
             </p>
-          </div>
-          <div className="staff-minimap-card">
-            <h3>Field view</h3>
-            <StaffFieldMiniMap current={staff} allStaff={STAFF_RECORDS} shiftProgress01={shiftProgress01} />
-            <p className="staff-minimap-legend">You at centre · gold dots = team · tap dot to open</p>
           </div>
         </div>
       </header>

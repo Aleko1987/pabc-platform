@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { RosterDeploymentMap } from "../components/RosterDeploymentMap";
 import { CUSTOMER_RECORDS } from "../data/customers";
 import {
   buildAssignmentsForDay,
   type DayPosting,
   dateKeyFromParts,
   getEligiblePostingsForStaffName,
-  getStaffSlugsForCustomer,
   postingForDay,
 } from "../data/rosterAssignments";
 import { getStaffBySlug, STAFF_RECORDS } from "../data/staffDirectory";
@@ -78,11 +76,6 @@ export function RosterPage() {
       (s) => s.name.toLowerCase().includes(q) || s.role.toLowerCase().includes(q) || s.slug.toLowerCase().includes(q),
     );
   }, [staffSearch]);
-
-  const mapSlugs = useMemo(() => {
-    if (filterClientSlug == null) return null;
-    return new Set(getStaffSlugsForCustomer(filterClientSlug));
-  }, [filterClientSlug]);
 
   const bumpMonth = (delta: number) => {
     const d = new Date(year, monthIndex + delta, 1);
@@ -186,7 +179,7 @@ export function RosterPage() {
       </header>
 
       <div className="roster-layout">
-        <aside className="roster-sidebar" aria-label="Client filters and map">
+        <aside className="roster-sidebar" aria-label="Client filters">
           <div className="roster-sidebar-block">
             <label className="roster-checkbox-label">
               <input
@@ -204,7 +197,7 @@ export function RosterPage() {
               />
               <span>Select all clients</span>
             </label>
-            <p className="roster-sidebar-hint">Shows every posting in the calendar and all officers on the deployment map.</p>
+            <p className="roster-sidebar-hint">Shows every posting in the calendar across all clients.</p>
           </div>
 
           <div className="roster-sidebar-block">
@@ -239,20 +232,9 @@ export function RosterPage() {
             ) : null}
           </ul>
 
-          <div className="roster-sidebar-block roster-map-block">
-            <h2 className="roster-sidebar-heading">Deployment map</h2>
-            <p className="roster-sidebar-hint">
-              {filterClientSlug == null
-                ? "All officers (mock positions)."
-                : selectedClientName
-                  ? `Guards assigned to ${selectedClientName}.`
-                  : null}
-            </p>
-            <RosterDeploymentMap visibleSlugs={mapSlugs} allStaff={STAFF_RECORDS} />
-            <Link to="/dashboard" className="roster-link-customers">
-              Open dashboard → customers
-            </Link>
-          </div>
+          <Link to="/dashboard" className="roster-link-customers">
+            Open dashboard → customers
+          </Link>
         </aside>
 
         <section className="roster-calendar-section" aria-label="Monthly roster">
