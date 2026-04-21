@@ -293,12 +293,15 @@ export function StaffDetailSheet({
     return Array.from({ length: 13 }, (_, i) => new Date(shiftStart.getTime() + i * 60 * 60 * 1000));
   }, [shiftStart]);
   const guardsPlanSlots = useMemo(() => {
-    const baseHour = shiftMode === "day" ? 8 : 18;
-    return Array.from({ length: 11 }, (_, i) => {
-      const hour24 = (baseHour + i) % 24;
-      return `${String(hour24).padStart(2, "0")}:00`;
+    return Array.from({ length: 13 }, (_, i) => {
+      const slot = new Date(shiftStart.getTime() + i * 60 * 60 * 1000);
+      return slot.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
     });
-  }, [shiftMode]);
+  }, [shiftStart]);
   const placedByHourIndex = useMemo(() => {
     const grouped = new Map<number, PlacedTask[]>();
     for (const task of placedTasks) {
@@ -357,7 +360,12 @@ export function StaffDetailSheet({
       <div className={`page staff-sheet ${compact ? "staff-sheet--compact" : ""} staff-sheet--guards-plan`}>
         <section className="staff-guards-plan" aria-label="Guards plan calendar">
           <div className="staff-guards-plan-head">
-            <h3>Guards plan</h3>
+            <h3>
+              Guards plan ·{" "}
+              {shiftStart.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false })}
+              –
+              {shiftEnd.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false })}
+            </h3>
             <button
               type="button"
               className="staff-btn-collapse-calendar"

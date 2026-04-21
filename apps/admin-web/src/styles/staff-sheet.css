@@ -682,7 +682,7 @@
   border: 1px solid rgba(63, 98, 143, 0.42);
   border-radius: 10px;
   overflow: hidden;
-  background: #f3f5f8;
+  background: linear-gradient(180deg, rgba(10, 24, 43, 0.92), rgba(6, 18, 33, 0.95));
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -693,8 +693,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.45rem 0.6rem;
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-  background: #edf1f6;
+  border-bottom: 1px solid rgba(63, 98, 143, 0.35);
+  background: rgba(13, 29, 51, 0.92);
 }
 
 .staff-guards-plan-head h3 {
@@ -702,13 +702,13 @@
   font-size: 0.74rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #2c486d;
+  color: var(--text-muted);
 }
 
 .staff-btn-collapse-calendar {
   border: none;
   background: transparent;
-  color: #3b5a7f;
+  color: rgba(188, 209, 237, 0.88);
   font-size: 0.9rem;
   cursor: pointer;
   padding: 0;
@@ -723,7 +723,7 @@
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
   min-height: 44px;
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  border-bottom: 1px solid rgba(63, 98, 143, 0.25);
 }
 
 .staff-guards-plan-row:last-child {
@@ -736,15 +736,15 @@
   justify-content: center;
   font-size: 0.74rem;
   font-weight: 700;
-  color: #294b73;
-  background: #e6ebf2;
-  border-right: 1px solid rgba(132, 146, 166, 0.3);
+  color: var(--gold);
+  background: rgba(16, 37, 65, 0.85);
+  border-right: 1px solid rgba(63, 98, 143, 0.3);
 }
 
 .staff-guards-plan-slot {
   border: none;
-  background: #f9fbfd;
-  color: #8b98a8;
+  background: rgba(8, 20, 37, 0.9);
+  color: rgba(163, 179, 200, 0.86);
   font: inherit;
   font-size: 0.82rem;
   font-style: italic;
