@@ -165,9 +165,11 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="page">
-      <h1>Settings</h1>
-      <p>TODO: Org profile, integrations, role management.</p>
+    <div className="page settings-page">
+      <header className="settings-page-head">
+        <h1>Settings</h1>
+        <p>TODO: Org profile, integrations, role management.</p>
+      </header>
       <section className="settings-export-card" aria-label="Exports">
         <h2 className="settings-export-title">Exports</h2>
         <p className="settings-export-lead">
@@ -249,11 +251,21 @@ export function SettingsPage() {
           ) : null}
         </div>
         <div className="settings-export-toolbar">
-          <button type="button" className="settings-month-nav-btn" onClick={() => bumpMonth(-1)} aria-label="Previous month">
+          <button
+            type="button"
+            className="settings-month-nav-btn"
+            onClick={() => bumpMonth(-1)}
+            aria-label="Previous month"
+          >
             ←
           </button>
           <strong className="settings-month-label">{monthTitle(year, monthIndex)}</strong>
-          <button type="button" className="settings-month-nav-btn" onClick={() => bumpMonth(1)} aria-label="Next month">
+          <button
+            type="button"
+            className="settings-month-nav-btn"
+            onClick={() => bumpMonth(1)}
+            aria-label="Next month"
+          >
             →
           </button>
           <button type="button" className="settings-export-btn" onClick={exportWorkHoursCsv}>
