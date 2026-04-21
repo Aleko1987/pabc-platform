@@ -423,25 +423,6 @@ export function StaffDetailSheet({
               Target {shiftEnd.toLocaleString(undefined, { weekday: "short", hour: "2-digit", minute: "2-digit" })}
             </p>
           </div>
-          <div className="staff-shift-toggle-card">
-            <h3>Shift mode</h3>
-            <div className="staff-shift-toggle" role="group" aria-label="Select shift mode">
-              <button
-                type="button"
-                className={`staff-shift-toggle-btn ${shiftMode === "day" ? "staff-shift-toggle-btn--active" : ""}`}
-                onClick={() => setShiftMode("day")}
-              >
-                Day shift
-              </button>
-              <button
-                type="button"
-                className={`staff-shift-toggle-btn ${shiftMode === "night" ? "staff-shift-toggle-btn--active" : ""}`}
-                onClick={() => setShiftMode("night")}
-              >
-                Night shift
-              </button>
-            </div>
-          </div>
         </div>
       </header>
 
@@ -471,6 +452,26 @@ export function StaffDetailSheet({
                 <span>{t.durationMin} min</span>
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="staff-shift-mode-row">
+          <p className="staff-shift-mode-label">Shift mode</p>
+          <div className="staff-shift-toggle" role="group" aria-label="Select shift mode">
+            <button
+              type="button"
+              className={`staff-shift-toggle-btn ${shiftMode === "day" ? "staff-shift-toggle-btn--active" : ""}`}
+              onClick={() => setShiftMode("day")}
+            >
+              Day shift
+            </button>
+            <button
+              type="button"
+              className={`staff-shift-toggle-btn ${shiftMode === "night" ? "staff-shift-toggle-btn--active" : ""}`}
+              onClick={() => setShiftMode("night")}
+            >
+              Night shift
+            </button>
           </div>
         </div>
 
