@@ -628,33 +628,41 @@ export function StaffDetailSheet({
 
         <div className="staff-sheet-actions">
           <div className="staff-clock-card">
-            <h3>Clock in</h3>
-            <button
-              type="button"
-              className={`staff-btn-clock ${clockedIn ? "staff-btn-clock--active" : ""}`}
-              onClick={handleClockToggle}
-            >
-              {clockedIn ? "Clock out" : "Clock in"}
-            </button>
-            {clockedIn && clockInAt ? (
-              <p className="staff-clock-status">
-                Clocked in at{" "}
-                {clockInAt.toLocaleTimeString(undefined, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })}
+            <div className="staff-clock-columns" role="group" aria-label="Clock in and shift end">
+              <div className="staff-clock-col">
+                <p className="staff-clock-col-label">Clock in</p>
+                <button
+                  type="button"
+                  className={`staff-btn-clock ${clockedIn ? "staff-btn-clock--active" : ""}`}
+                  onClick={handleClockToggle}
+                >
+                  {clockedIn ? "Clock out" : "Clock in"}
+                </button>
+              </div>
+              <div className="staff-clock-col">
+                <p className="staff-clock-col-label">Shift ends</p>
+                <div className="staff-countdown-display staff-countdown-display--inline" aria-live="polite">
+                  {formatCountdown(msToShiftEnd)}
+                </div>
+              </div>
+            </div>
+            <div className="staff-clock-footer">
+              {clockedIn && clockInAt ? (
+                <p className="staff-clock-status">
+                  Clocked in at{" "}
+                  {clockInAt.toLocaleTimeString(undefined, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
+                </p>
+              ) : (
+                <p className="staff-clock-status">Not clocked in</p>
+              )}
+              <p className="staff-countdown-label">
+                Target {shiftEnd.toLocaleString(undefined, { weekday: "short", hour: "2-digit", minute: "2-digit" })}
               </p>
-            ) : (
-              <p className="staff-clock-status">Not clocked in</p>
-            )}
-          </div>
-          <div className="staff-countdown-card">
-            <h3>Shift ends</h3>
-            <div className="staff-countdown-display">{formatCountdown(msToShiftEnd)}</div>
-            <p className="staff-countdown-label">
-              Target {shiftEnd.toLocaleString(undefined, { weekday: "short", hour: "2-digit", minute: "2-digit" })}
-            </p>
+            </div>
           </div>
         </div>
       </header>
