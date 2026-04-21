@@ -525,6 +525,7 @@ code {
 .dashboard-shell {
   position: relative;
   min-height: calc(100vh - 4rem);
+  background: linear-gradient(180deg, #07162a 0%, #041227 100%);
   transition: padding-right 0.2s ease;
 }
 
@@ -549,8 +550,8 @@ code {
   z-index: 1800;
   width: 54px;
   height: 54px;
-  border: 1px solid rgba(212, 175, 55, 0.55);
-  background: rgba(10, 22, 40, 0.95);
+  border: 1px solid rgba(74, 108, 154, 0.55);
+  background: linear-gradient(180deg, rgba(13, 34, 59, 0.96), rgba(7, 22, 41, 0.96));
   border-radius: 50%;
   padding: 0.15rem;
   cursor: pointer;
@@ -570,9 +571,12 @@ code {
   bottom: 4.9rem;
   width: min(360px, calc(100vw - 2rem));
   z-index: 1700;
-  border-radius: 14px;
-  border: 1px solid rgba(61, 90, 128, 0.55);
-  background: rgba(8, 18, 33, 0.98);
+  border-radius: 16px;
+  border: 1px solid rgba(64, 99, 145, 0.48);
+  background: linear-gradient(180deg, rgba(10, 26, 47, 0.98), rgba(6, 18, 35, 0.98));
+  box-shadow:
+    0 14px 40px rgba(3, 10, 21, 0.52),
+    inset 0 1px 0 rgba(170, 210, 255, 0.06);
   overflow: auto;
   transform: translateX(calc(100% + 1.25rem));
   opacity: 0;
@@ -592,7 +596,7 @@ code {
 }
 
 .dashboard-side-menu--staff {
-  padding: 0.55rem;
+  padding: 0.5rem;
 }
 
 .dashboard-staff-panel-wrap {
