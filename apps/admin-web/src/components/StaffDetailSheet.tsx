@@ -354,7 +354,7 @@ export function StaffDetailSheet({
 
   if (compact && showCoordinationCalendar) {
     return (
-      <div className={`page staff-sheet ${compact ? "staff-sheet--compact" : ""}`}>
+      <div className={`page staff-sheet ${compact ? "staff-sheet--compact" : ""} staff-sheet--guards-plan`}>
         <section className="staff-guards-plan" aria-label="Guards plan calendar">
           <div className="staff-guards-plan-head">
             <h3>Guards plan</h3>
@@ -584,16 +584,6 @@ export function StaffDetailSheet({
               {shiftEnd.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false })}
             </h3>
           </div>
-          <div className="staff-timeline-panel-actions">
-            <button
-              type="button"
-              className="staff-btn-expand-calendar"
-              onClick={() => setShowCoordinationCalendar((v) => !v)}
-              aria-label={showCoordinationCalendar ? "Collapse guards plan calendar" : "Expand guards plan calendar"}
-            >
-              {showCoordinationCalendar ? "⤡" : "⤢"}
-            </button>
-          </div>
 
           {showCoordinationCalendar ? (
             <div className="staff-coord-calendar" aria-label="Coordination day calendar">
@@ -635,7 +625,17 @@ export function StaffDetailSheet({
           ) : (
             <div className="staff-timeline-editor">
               <div className="staff-timeline-ruler-row">
-                <div className="staff-timeline-corner" aria-hidden />
+                <div className="staff-timeline-corner staff-timeline-corner--action">
+                  <button
+                    type="button"
+                    className="staff-btn-expand-calendar"
+                    onClick={() => setShowCoordinationCalendar(true)}
+                    aria-label="Expand guards plan calendar"
+                    title="Expand guards plan calendar"
+                  >
+                    ⤢
+                  </button>
+                </div>
                 <div className="staff-timeline-ruler-area">
                   <div className="staff-timeline-ruler-ticks" />
                   <div className="staff-timeline-ruler-labels">

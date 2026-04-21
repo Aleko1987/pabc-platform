@@ -660,14 +660,14 @@
 }
 
 .staff-btn-expand-calendar {
-  width: 34px;
-  height: 28px;
-  border-radius: 8px;
+  width: 24px;
+  height: 22px;
+  border-radius: 6px;
   border: 1px solid rgba(63, 98, 143, 0.58);
   background: rgba(10, 22, 40, 0.82);
   color: #bfdcfb;
   font: inherit;
-  font-size: 0.86rem;
+  font-size: 0.74rem;
   font-weight: 600;
   padding: 0;
   cursor: pointer;
@@ -683,6 +683,9 @@
   border-radius: 10px;
   overflow: hidden;
   background: #f3f5f8;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .staff-guards-plan-head {
@@ -712,7 +715,7 @@
 }
 
 .staff-guards-plan-body {
-  max-height: 620px;
+  flex: 1;
   overflow: auto;
 }
 
@@ -865,6 +868,12 @@
 .staff-timeline-corner {
   background: rgba(10, 22, 40, 0.6);
   border-right: 1px solid rgba(61, 90, 128, 0.35);
+}
+
+.staff-timeline-corner--action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .staff-timeline-ruler-area {
@@ -1021,6 +1030,14 @@
   font-size: 0.68rem;
   color: var(--text-muted);
   line-height: 1.5;
+}
+
+.staff-sheet--guards-plan {
+  height: 100%;
+}
+
+.staff-sheet--guards-plan .staff-guards-plan {
+  min-height: 100%;
 }
 
 @media (max-width: 700px) {
