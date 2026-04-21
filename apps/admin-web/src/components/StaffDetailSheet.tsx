@@ -4,8 +4,11 @@ import { Link } from "react-router-dom";
 import { getStaffBySlug } from "../data/staffDirectory";
 import "../styles/staff-sheet.css";
 
-/** 8-hour shift window for timeline (minutes). */
-const SHIFT_TOTAL_MIN = 8 * 60;
+/** 12-hour shift window for timeline (minutes). */
+const SHIFT_TOTAL_MIN = 12 * 60;
+const TRACK_TOTAL = 4;
+
+type ShiftMode = "day" | "night";
 
 type TaskTemplate = {
   id: string;
@@ -51,17 +54,25 @@ function formatCountdown(ms: number): string {
   return [h, m, sec].map((n) => String(n).padStart(2, "0")).join(":");
 }
 
-function useShiftBounds(): { start: Date; end: Date } {
+function useShiftBounds(mode: ShiftMode): { start: Date; end: Date } {
   return useMemo(() => {
-    const end = new Date();
-    end.setHours(18, 0, 0, 0);
-    if (end.getTime() <= Date.now()) {
-      end.setDate(end.getDate() + 1);
+    const now = new Date();
+    const end = new Date(now);
+    if (mode === "day") {
+      end.setHours(18, 0, 0, 0);
+      if (end.getTime() <= now.getTime()) end.setDate(end.getDate() + 1);
+      const start = new Date(end);
+      start.setHours(6, 0, 0, 0);
+      return { start, end };
     }
+
+    end.setHours(6, 0, 0, 0);
+    if (end.getTime() <= now.getTime()) end.setDate(end.getDate() + 1);
     const start = new Date(end);
-    start.setHours(8, 0, 0, 0);
+    start.setHours(18, 0, 0, 0);
+    start.setDate(start.getDate() - 1);
     return { start, end };
-  }, []);
+  }, [mode]);
 }
 
 function usePlayheadPercent(shiftStart: Date): number | null {
@@ -92,15 +103,15 @@ export function StaffDetailSheet({
   compact = false,
 }: StaffDetailSheetProps) {
   const staff = getStaffBySlug(staffSlug);
+  const [shiftMode, setShiftMode] = useState<ShiftMode>("day");
 
-  const { start: shiftStart, end: shiftEnd } = useShiftBounds();
+  const { start: shiftStart, end: shiftEnd } = useShiftBounds(shiftMode);
   const playheadPct = usePlayheadPercent(shiftStart);
 
   const [now, setNow] = useState(() => Date.now());
   const [clockedIn, setClockedIn] = useState(false);
   const [clockInAt, setClockInAt] = useState<Date | null>(null);
   const [placedTasks, setPlacedTasks] = useState<PlacedTask[]>([]);
-  const [trackCount, setTrackCount] = useState(4);
   const [dragOverTrack, setDragOverTrack] = useState<number | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
@@ -232,10 +243,6 @@ export function StaffDetailSheet({
     setPlacedTasks((prev) => prev.filter((p) => p.placedId !== placedId));
   }, []);
 
-  const addChannel = useCallback(() => {
-    setTrackCount((c) => Math.min(c + 1, 12));
-  }, []);
-
   const sendStaffMessage = useCallback(() => {
     if (!staff) return;
     const body = window.prompt(`Message to ${staff.name}:`, "Team check-in: confirm site status by 18:00.");
@@ -268,9 +275,57 @@ export function StaffDetailSheet({
     );
   }
 
-  const rulerLabels = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00"];
+  const rulerLabels = useMemo(() => {
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(shiftStart);
+      d.setHours(d.getHours() + i * 2);
+      return d.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    });
+  }, [shiftStart]);
 
-  const tracks = Array.from({ length: trackCount }, (_, i) => i);
+  const tracks = Array.from({ length: TRACK_TOTAL }, (_, i) => i);
+
+  const placeTemplateSequential = useCallback(
+    (templateId: string) => {
+      const t = TASK_LIBRARY.find((task) => task.id === templateId);
+      if (!t) return;
+
+      setPlacedTasks((prev) => {
+        for (let trackIndex = 0; trackIndex < TRACK_TOTAL; trackIndex += 1) {
+          const rowTasks = prev
+            .filter((p) => p.trackIndex === trackIndex)
+            .sort((a, b) => a.startMin - b.startMin);
+          let rowEnd = 0;
+          for (const task of rowTasks) {
+            if (task.startMin > rowEnd) break;
+            rowEnd = Math.max(rowEnd, task.startMin + task.durationMin);
+          }
+
+          if (rowEnd + t.durationMin <= SHIFT_TOTAL_MIN) {
+            const placedId = `placed-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+            return [
+              ...prev,
+              {
+                placedId,
+                templateId: t.id,
+                label: t.label,
+                startMin: rowEnd,
+                durationMin: t.durationMin,
+                color: t.color,
+                trackIndex,
+              },
+            ];
+          }
+        }
+        return prev;
+      });
+    },
+    [],
+  );
 
   return (
     <div className={`page staff-sheet ${compact ? "staff-sheet--compact" : ""}`}>
@@ -368,6 +423,25 @@ export function StaffDetailSheet({
               Target {shiftEnd.toLocaleString(undefined, { weekday: "short", hour: "2-digit", minute: "2-digit" })}
             </p>
           </div>
+          <div className="staff-shift-toggle-card">
+            <h3>Shift mode</h3>
+            <div className="staff-shift-toggle" role="group" aria-label="Select shift mode">
+              <button
+                type="button"
+                className={`staff-shift-toggle-btn ${shiftMode === "day" ? "staff-shift-toggle-btn--active" : ""}`}
+                onClick={() => setShiftMode("day")}
+              >
+                Day shift
+              </button>
+              <button
+                type="button"
+                className={`staff-shift-toggle-btn ${shiftMode === "night" ? "staff-shift-toggle-btn--active" : ""}`}
+                onClick={() => setShiftMode("night")}
+              >
+                Night shift
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -386,9 +460,11 @@ export function StaffDetailSheet({
                 className={`staff-library-item ${selectedTemplateId === t.id ? "staff-library-item--selected" : ""}`}
                 draggable
                 onDragStart={(e) => onDragStartLib(e, t)}
-                onClick={() =>
-                  setSelectedTemplateId((prev) => (prev === t.id ? null : t.id))
-                }
+                onClick={(e) => {
+                  if (e.detail > 1) return;
+                  setSelectedTemplateId((prev) => (prev === t.id ? null : t.id));
+                }}
+                onDoubleClick={() => placeTemplateSequential(t.id)}
                 style={{ backgroundColor: t.color }}
               >
                 {t.label}
@@ -400,10 +476,12 @@ export function StaffDetailSheet({
 
         <div className="staff-timeline-panel">
           <div className="staff-timeline-panel-head">
-            <h3>Multi-track shift · 08:00–18:00</h3>
-            <button type="button" className="staff-btn-add-channel" onClick={addChannel}>
-              + Add channel
-            </button>
+            <h3>
+              Multi-track shift ·{" "}
+              {shiftStart.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false })}
+              –
+              {shiftEnd.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false })}
+            </h3>
           </div>
 
           <div className="staff-timeline-editor">
