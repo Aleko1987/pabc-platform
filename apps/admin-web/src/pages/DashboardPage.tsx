@@ -103,19 +103,12 @@ export function DashboardPage() {
 
   const openStaffView = (staffSlug: string) => {
     setActiveStaffSlug(staffSlug);
+    setShowSideMenu(true);
   };
 
   const closeStaffView = () => {
     setActiveStaffSlug(null);
   };
-
-  if (activeStaffSlug) {
-    return (
-      <div className="dashboard-staff-screen">
-        <StaffDetailSheet staffSlug={activeStaffSlug} onBack={closeStaffView} backLabel="← Dashboard" />
-      </div>
-    );
-  }
 
   return (
     <div className={`dashboard-shell ${showSideMenu ? "dashboard-shell--menu-open" : ""}`}>
@@ -129,207 +122,226 @@ export function DashboardPage() {
       <button
         type="button"
         className="dashboard-logo-fab"
-        onClick={() => setShowSideMenu((v) => !v)}
+        onClick={() =>
+          setShowSideMenu((v) => {
+            const next = !v;
+            if (!next) {
+              setActiveStaffSlug(null);
+            }
+            return next;
+          })
+        }
         aria-label={showSideMenu ? "Close side menu" : "Open side menu"}
       >
         <img src={pabcLogo} alt="PABC logo" />
       </button>
 
-      <aside className={`dashboard-side-menu ${showSideMenu ? "dashboard-side-menu--open" : ""}`} aria-label="Dashboard side menu">
-        <div className="page dashboard-page">
-          <header className="dashboard-header">
-            <h1 className="dashboard-title">Dashboard</h1>
-            <Link to="/settings" className="dashboard-settings-cog" aria-label="Open settings">
-              ⚙
-            </Link>
-            <div className="dashboard-broadcast-actions">
-              <button
-                type="button"
-                className="dashboard-broadcast-btn"
-                title={selectedCustomerNames.length > 0 ? "Send message to selected customers" : `Send message to all groups (${allRecipients.length})`}
-                aria-label={selectedCustomerNames.length > 0 ? "Send message to selected customers" : "Send message to all groups"}
-                onClick={sendGlobalMessage}
-                disabled={selectedCustomerNames.length === 0 && allRecipients.length === 0}
-              >
-                ✉
-              </button>
-              <button
-                type="button"
-                className="dashboard-broadcast-btn dashboard-broadcast-btn--voice"
-                title={selectedCustomerNames.length > 0 ? "Send voice note to selected customers" : `Send voice note to all groups (${allRecipients.length})`}
-                aria-label={selectedCustomerNames.length > 0 ? "Send voice note to selected customers" : "Send voice note to all groups"}
-                onClick={sendGlobalVoice}
-                disabled={selectedCustomerNames.length === 0 && allRecipients.length === 0}
-              >
-                🎤
-              </button>
-            </div>
-            <div className="dashboard-search-wrap">
-              <label className="visually-hidden" htmlFor="dashboard-search">
-                Global search (customers, staff)
-              </label>
-              <span className="dashboard-search-icon" aria-hidden>
-                🔎
-              </span>
-              <input
-                id="dashboard-search"
-                type="search"
-                className="dashboard-search-input"
-                placeholder="Search customers, staff…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                autoComplete="off"
-              />
-            </div>
-          </header>
-          {broadcastNotice ? (
-            <p className="dashboard-broadcast-notice" role="status">
-              {broadcastNotice}
-            </p>
-          ) : null}
-
-          <div className="dashboard-tab-row">
-            <button
-              type="button"
-              className={`dashboard-tab-pill ${tab === "customers" ? "dashboard-tab-pill--active" : ""}`}
-              onClick={() => setTab("customers")}
-            >
-              Customers
-            </button>
-            <button
-              type="button"
-              className={`dashboard-tab-pill ${tab === "staff" ? "dashboard-tab-pill--active" : ""}`}
-              onClick={() => setTab("staff")}
-            >
-              Staff
-            </button>
+      <aside
+        className={`dashboard-side-menu ${showSideMenu ? "dashboard-side-menu--open" : ""} ${
+          activeStaffSlug ? "dashboard-side-menu--staff" : ""
+        }`}
+        aria-label="Dashboard side menu"
+      >
+        {activeStaffSlug ? (
+          <div className="dashboard-staff-panel-wrap">
+            <StaffDetailSheet staffSlug={activeStaffSlug} onBack={closeStaffView} backLabel="← Back to menu" compact />
           </div>
-          {selectedCustomerNames.length > 0 ? (
-            <p className="dashboard-filter-chip">
-              Roster filter: <strong>{selectedCustomerNames.join(", ")}</strong>{" "}
-              <button type="button" onClick={() => setSelectedCustomerSlugs([])}>
-                Clear
-              </button>
-            </p>
-          ) : null}
+        ) : (
+          <div className="page dashboard-page">
+            <header className="dashboard-header">
+              <h1 className="dashboard-title">Dashboard</h1>
+              <Link to="/settings" className="dashboard-settings-cog" aria-label="Open settings">
+                ⚙
+              </Link>
+              <div className="dashboard-broadcast-actions">
+                <button
+                  type="button"
+                  className="dashboard-broadcast-btn"
+                  title={selectedCustomerNames.length > 0 ? "Send message to selected customers" : `Send message to all groups (${allRecipients.length})`}
+                  aria-label={selectedCustomerNames.length > 0 ? "Send message to selected customers" : "Send message to all groups"}
+                  onClick={sendGlobalMessage}
+                  disabled={selectedCustomerNames.length === 0 && allRecipients.length === 0}
+                >
+                  ✉
+                </button>
+                <button
+                  type="button"
+                  className="dashboard-broadcast-btn dashboard-broadcast-btn--voice"
+                  title={selectedCustomerNames.length > 0 ? "Send voice note to selected customers" : `Send voice note to all groups (${allRecipients.length})`}
+                  aria-label={selectedCustomerNames.length > 0 ? "Send voice note to selected customers" : "Send voice note to all groups"}
+                  onClick={sendGlobalVoice}
+                  disabled={selectedCustomerNames.length === 0 && allRecipients.length === 0}
+                >
+                  🎤
+                </button>
+              </div>
+              <div className="dashboard-search-wrap">
+                <label className="visually-hidden" htmlFor="dashboard-search">
+                  Global search (customers, staff)
+                </label>
+                <span className="dashboard-search-icon" aria-hidden>
+                  🔎
+                </span>
+                <input
+                  id="dashboard-search"
+                  type="search"
+                  className="dashboard-search-input"
+                  placeholder="Search customers, staff…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+            </header>
+            {broadcastNotice ? (
+              <p className="dashboard-broadcast-notice" role="status">
+                {broadcastNotice}
+              </p>
+            ) : null}
 
-          {isGlobalSearch && globalMatches ? (
-            <section className="dashboard-global-results" aria-label="Global search results">
-              {emptyGlobal ? (
-                <p className="dashboard-empty">No matches across customers or staff.</p>
-              ) : (
-                <>
-                  {globalMatches.customers.length > 0 ? (
-                    <div className="dashboard-global-block">
-                      <h2 className="dashboard-global-heading">Customers</h2>
-                      <ul className="dashboard-pill-list">
-                        {globalMatches.customers.map((c) => (
-                          <li key={c.slug}>
-                            <label className="dashboard-customer-filter-row">
+            <div className="dashboard-tab-row">
+              <button
+                type="button"
+                className={`dashboard-tab-pill ${tab === "customers" ? "dashboard-tab-pill--active" : ""}`}
+                onClick={() => setTab("customers")}
+              >
+                Customers
+              </button>
+              <button
+                type="button"
+                className={`dashboard-tab-pill ${tab === "staff" ? "dashboard-tab-pill--active" : ""}`}
+                onClick={() => setTab("staff")}
+              >
+                Staff
+              </button>
+            </div>
+            {selectedCustomerNames.length > 0 ? (
+              <p className="dashboard-filter-chip">
+                Roster filter: <strong>{selectedCustomerNames.join(", ")}</strong>{" "}
+                <button type="button" onClick={() => setSelectedCustomerSlugs([])}>
+                  Clear
+                </button>
+              </p>
+            ) : null}
+
+            {isGlobalSearch && globalMatches ? (
+              <section className="dashboard-global-results" aria-label="Global search results">
+                {emptyGlobal ? (
+                  <p className="dashboard-empty">No matches across customers or staff.</p>
+                ) : (
+                  <>
+                    {globalMatches.customers.length > 0 ? (
+                      <div className="dashboard-global-block">
+                        <h2 className="dashboard-global-heading">Customers</h2>
+                        <ul className="dashboard-pill-list">
+                          {globalMatches.customers.map((c) => (
+                            <li key={c.slug}>
+                              <label className="dashboard-customer-filter-row">
+                                <button
+                                  type="button"
+                                  className="dashboard-pill-link dashboard-pill-link--button"
+                                  onClick={() => toggleCustomerFilter(c.slug)}
+                                >
+                                  {c.name}
+                                </button>
+                                <input
+                                  type="checkbox"
+                                  checked={selectedCustomerSlugs.includes(c.slug)}
+                                  onChange={() => toggleCustomerFilter(c.slug)}
+                                  aria-label={`Filter roster by ${c.name}`}
+                                />
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {globalMatches.staff.length > 0 ? (
+                      <div className="dashboard-global-block">
+                        <h2 className="dashboard-global-heading">Staff</h2>
+                        <ul className="dashboard-pill-list">
+                          {globalMatches.staff.map((s) => (
+                            <li key={s.slug}>
                               <button
                                 type="button"
-                                className="dashboard-pill-link dashboard-pill-link--button"
-                                onClick={() => toggleCustomerFilter(c.slug)}
+                                className="dashboard-pill-link"
+                                onClick={() => openStaffView(s.slug)}
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData(DND_MIME, JSON.stringify({ kind: "pool", staffSlug: s.slug }));
+                                  e.dataTransfer.effectAllowed = "copyMove";
+                                }}
                               >
-                                {c.name}
+                                {s.name}
+                                <span className="dashboard-pill-meta">{s.role}</span>
                               </button>
-                              <input
-                                type="checkbox"
-                                checked={selectedCustomerSlugs.includes(c.slug)}
-                                onChange={() => toggleCustomerFilter(c.slug)}
-                                aria-label={`Filter roster by ${c.name}`}
-                              />
-                            </label>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {globalMatches.staff.length > 0 ? (
-                    <div className="dashboard-global-block">
-                      <h2 className="dashboard-global-heading">Staff</h2>
-                      <ul className="dashboard-pill-list">
-                        {globalMatches.staff.map((s) => (
-                          <li key={s.slug}>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </>
+                )}
+              </section>
+            ) : (
+              <div className="dashboard-tab-panel">
+                {tab === "customers" ? (
+                  emptyTab ? (
+                    <p className="dashboard-empty">No customers match your search.</p>
+                  ) : (
+                    <ul className="dashboard-pill-list">
+                      {filteredCustomersTab.map((c) => (
+                        <li key={c.slug}>
+                          <label className="dashboard-customer-filter-row">
                             <button
                               type="button"
-                              className="dashboard-pill-link"
-                              onClick={() => openStaffView(s.slug)}
-                              draggable
-                              onDragStart={(e) => {
-                                e.dataTransfer.setData(DND_MIME, JSON.stringify({ kind: "pool", staffSlug: s.slug }));
-                                e.dataTransfer.effectAllowed = "copyMove";
-                              }}
+                              className="dashboard-pill-link dashboard-pill-link--button"
+                              onClick={() => toggleCustomerFilter(c.slug)}
                             >
-                              {s.name}
-                              <span className="dashboard-pill-meta">{s.role}</span>
+                              {c.name}
                             </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </>
-              )}
-            </section>
-          ) : (
-            <div className="dashboard-tab-panel">
-              {tab === "customers" ? (
-                emptyTab ? (
-                  <p className="dashboard-empty">No customers match your search.</p>
-                ) : (
-                  <ul className="dashboard-pill-list">
-                    {filteredCustomersTab.map((c) => (
-                      <li key={c.slug}>
-                        <label className="dashboard-customer-filter-row">
+                            <input
+                              type="checkbox"
+                              checked={selectedCustomerSlugs.includes(c.slug)}
+                              onChange={() => toggleCustomerFilter(c.slug)}
+                              aria-label={`Filter roster by ${c.name}`}
+                            />
+                          </label>
+                        </li>
+                      ))}
+                    </ul>
+                  )
+                ) : null}
+
+                {tab === "staff" ? (
+                  emptyTab ? (
+                    <p className="dashboard-empty">No staff match your search.</p>
+                  ) : (
+                    <ul className="dashboard-pill-list">
+                      {filteredStaffTab.map((s) => (
+                        <li key={s.slug}>
                           <button
                             type="button"
-                            className="dashboard-pill-link dashboard-pill-link--button"
-                            onClick={() => toggleCustomerFilter(c.slug)}
+                            className="dashboard-pill-link"
+                            onClick={() => openStaffView(s.slug)}
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData(DND_MIME, JSON.stringify({ kind: "pool", staffSlug: s.slug }));
+                              e.dataTransfer.effectAllowed = "copyMove";
+                            }}
                           >
-                            {c.name}
+                            {s.name}
+                            <span className="dashboard-pill-meta">{s.role}</span>
                           </button>
-                          <input
-                            type="checkbox"
-                            checked={selectedCustomerSlugs.includes(c.slug)}
-                            onChange={() => toggleCustomerFilter(c.slug)}
-                            aria-label={`Filter roster by ${c.name}`}
-                          />
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                )
-              ) : null}
-
-              {tab === "staff" ? (
-                emptyTab ? (
-                  <p className="dashboard-empty">No staff match your search.</p>
-                ) : (
-                  <ul className="dashboard-pill-list">
-                    {filteredStaffTab.map((s) => (
-                      <li key={s.slug}>
-                        <button
-                          type="button"
-                          className="dashboard-pill-link"
-                          onClick={() => openStaffView(s.slug)}
-                          draggable
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData(DND_MIME, JSON.stringify({ kind: "pool", staffSlug: s.slug }));
-                            e.dataTransfer.effectAllowed = "copyMove";
-                          }}
-                        >
-                          {s.name}
-                          <span className="dashboard-pill-meta">{s.role}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )
-              ) : null}
-            </div>
-          )}
-        </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )
+                ) : null}
+              </div>
+            )}
+          </div>
+        )}
       </aside>
     </div>
   );

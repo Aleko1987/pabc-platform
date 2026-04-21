@@ -39,6 +39,7 @@ type StaffDetailSheetProps = {
   showBackLink?: boolean;
   onBack?: () => void;
   backLabel?: string;
+  compact?: boolean;
 };
 
 function formatCountdown(ms: number): string {
@@ -88,6 +89,7 @@ export function StaffDetailSheet({
   showBackLink = false,
   onBack,
   backLabel = "← Dashboard",
+  compact = false,
 }: StaffDetailSheetProps) {
   const staff = getStaffBySlug(staffSlug);
 
@@ -271,7 +273,7 @@ export function StaffDetailSheet({
   const tracks = Array.from({ length: trackCount }, (_, i) => i);
 
   return (
-    <div className="page staff-sheet">
+    <div className={`page staff-sheet ${compact ? "staff-sheet--compact" : ""}`}>
       {onBack ? (
         <button type="button" className="text-link staff-sheet-back staff-sheet-back-btn" onClick={onBack}>
           {backLabel}
@@ -316,13 +318,15 @@ export function StaffDetailSheet({
             >
               🎤
             </button>
-            <Link
-              to={`/staff/${staff.slug}/schedule`}
-              className="staff-btn-view-schedule"
-              title="Your postings and who else is at your sites"
-            >
-              View schedule
-            </Link>
+            {!compact ? (
+              <Link
+                to={`/staff/${staff.slug}/schedule`}
+                className="staff-btn-view-schedule"
+                title="Your postings and who else is at your sites"
+              >
+                View schedule
+              </Link>
+            ) : null}
           </div>
         </div>
         {broadcastNotice ? (
@@ -488,9 +492,11 @@ export function StaffDetailSheet({
         </div>
       </section>
 
-      <p className="staff-sheet-footnote">
-        HR records and live sync will connect to Supabase later. Channels are in-memory until refresh (max 12).
-      </p>
+      {!compact ? (
+        <p className="staff-sheet-footnote">
+          HR records and live sync will connect to Supabase later. Channels are in-memory until refresh (max 12).
+        </p>
+      ) : null}
     </div>
   );
 }

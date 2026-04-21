@@ -591,6 +591,15 @@ code {
   padding: 1rem;
 }
 
+.dashboard-side-menu--staff {
+  padding: 0.55rem;
+}
+
+.dashboard-staff-panel-wrap {
+  height: 100%;
+  overflow: auto;
+}
+
 .dashboard-side-menu .dashboard-header {
   margin-bottom: 0.8rem;
 }
