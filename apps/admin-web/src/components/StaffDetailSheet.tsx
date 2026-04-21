@@ -37,6 +37,8 @@ type PlacedTask = {
 type StaffDetailSheetProps = {
   staffSlug: string;
   showBackLink?: boolean;
+  onBack?: () => void;
+  backLabel?: string;
 };
 
 function formatCountdown(ms: number): string {
@@ -81,7 +83,12 @@ function usePlayheadPercent(shiftStart: Date): number | null {
   return pct;
 }
 
-export function StaffDetailSheet({ staffSlug, showBackLink = false }: StaffDetailSheetProps) {
+export function StaffDetailSheet({
+  staffSlug,
+  showBackLink = false,
+  onBack,
+  backLabel = "← Dashboard",
+}: StaffDetailSheetProps) {
   const staff = getStaffBySlug(staffSlug);
 
   const { start: shiftStart, end: shiftEnd } = useShiftBounds();
@@ -246,9 +253,15 @@ export function StaffDetailSheet({ staffSlug, showBackLink = false }: StaffDetai
       <div className="page">
         <h1>Staff not found</h1>
         <p className="page-lead">No profile matches this link.</p>
-        <Link to="/dashboard" className="text-link">
-          ← Back to Dashboard
-        </Link>
+        {onBack ? (
+          <button type="button" className="text-link staff-sheet-back-btn" onClick={onBack}>
+            {backLabel}
+          </button>
+        ) : (
+          <Link to="/dashboard" className="text-link">
+            ← Back to Dashboard
+          </Link>
+        )}
       </div>
     );
   }
@@ -259,7 +272,11 @@ export function StaffDetailSheet({ staffSlug, showBackLink = false }: StaffDetai
 
   return (
     <div className="page staff-sheet">
-      {showBackLink ? (
+      {onBack ? (
+        <button type="button" className="text-link staff-sheet-back staff-sheet-back-btn" onClick={onBack}>
+          {backLabel}
+        </button>
+      ) : showBackLink ? (
         <Link to="/dashboard" className="text-link staff-sheet-back">
           ← Dashboard
         </Link>
@@ -351,7 +368,7 @@ export function StaffDetailSheet({ staffSlug, showBackLink = false }: StaffDetai
       </header>
 
       <section className="staff-timeline-workspace" aria-label="Schedule timeline">
-        <aside className="staff-library">
+        <div className="staff-library staff-library--top">
           <p className="staff-library-title">Master library</p>
           <p className="staff-library-hint">
             Drag tasks onto a <strong>channel</strong> (row), or tap one task then tap a lane to place it. Same row =
@@ -359,8 +376,9 @@ export function StaffDetailSheet({ staffSlug, showBackLink = false }: StaffDetai
           </p>
           <div className="staff-library-list">
             {TASK_LIBRARY.map((t) => (
-              <div
+              <button
                 key={t.id}
+                type="button"
                 className={`staff-library-item ${selectedTemplateId === t.id ? "staff-library-item--selected" : ""}`}
                 draggable
                 onDragStart={(e) => onDragStartLib(e, t)}
@@ -371,10 +389,10 @@ export function StaffDetailSheet({ staffSlug, showBackLink = false }: StaffDetai
               >
                 {t.label}
                 <span>{t.durationMin} min</span>
-              </div>
+              </button>
             ))}
           </div>
-        </aside>
+        </div>
 
         <div className="staff-timeline-panel">
           <div className="staff-timeline-panel-head">

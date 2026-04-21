@@ -319,25 +319,6 @@ code {
   font-size: 0.8rem;
 }
 
-.dashboard-staff-picker-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  border: 1px solid rgba(61, 90, 128, 0.62);
-  background: rgba(10, 22, 40, 0.85);
-  color: var(--text);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.dashboard-staff-picker-btn:hover {
-  border-color: rgba(212, 175, 55, 0.52);
-  color: var(--gold);
-}
-
 .dashboard-search-wrap {
   position: relative;
   flex: 0 1 220px;
@@ -379,25 +360,6 @@ code {
   margin: -0.25rem 0 1rem;
   font-size: 0.8rem;
   color: var(--spotlight);
-}
-
-.dashboard-staff-picker {
-  margin: -0.25rem 0 0.9rem;
-  padding: 0.65rem;
-  border-radius: 10px;
-  border: 1px solid rgba(61, 90, 128, 0.55);
-  background: rgba(10, 22, 40, 0.55);
-}
-
-.dashboard-staff-picker-list {
-  list-style: none;
-  margin: 0.65rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  max-height: 220px;
-  overflow: auto;
 }
 
 .dashboard-search-icon {
@@ -482,12 +444,15 @@ code {
   width: 100%;
   padding: 0.85rem 1.25rem;
   border-radius: 999px;
+  border: none;
   background: var(--gold);
   color: #1a1a1a;
   text-align: center;
   text-decoration: none;
+  font: inherit;
   font-weight: 600;
   font-size: 0.95rem;
+  cursor: pointer;
   transition: filter 0.15s, transform 0.1s;
 }
 
@@ -567,49 +532,14 @@ code {
   padding-right: calc(min(360px, 100vw - 2rem) + 1.5rem);
 }
 
-.dashboard-staff-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 2100;
-  background: rgba(3, 8, 15, 0.76);
-  display: grid;
-  place-items: center;
-  padding: 1rem;
+.dashboard-staff-screen {
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
 }
 
-.dashboard-staff-modal {
-  position: relative;
-  width: min(1180px, 96vw);
-  max-height: calc(100vh - 2rem);
-  overflow: auto;
-  border-radius: 16px;
-  border: 1px solid rgba(61, 90, 128, 0.55);
-  background: rgba(6, 16, 30, 0.98);
-}
-
-.dashboard-staff-modal .staff-sheet {
+.dashboard-staff-screen .staff-sheet {
   max-width: none;
-}
-
-.dashboard-staff-modal-close {
-  position: sticky;
-  top: 0.75rem;
-  float: right;
-  margin: 0.75rem 0.75rem 0 0;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  border: 1px solid rgba(61, 90, 128, 0.65);
-  background: rgba(10, 22, 40, 0.95);
-  color: var(--gold);
-  font-size: 1rem;
-  line-height: 1;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.dashboard-staff-modal-close:hover {
-  border-color: var(--gold);
 }
 
 .dashboard-logo-fab {
@@ -700,16 +630,8 @@ code {
     width: auto;
   }
 
-  .dashboard-staff-modal-backdrop {
+  .dashboard-staff-screen {
     padding: 0;
-    align-items: end;
-  }
-
-  .dashboard-staff-modal {
-    width: 100vw;
-    max-height: 100vh;
-    border-radius: 12px 12px 0 0;
-    border-bottom: none;
   }
 }
 
