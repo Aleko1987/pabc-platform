@@ -1269,10 +1269,6 @@ code {
 .settings-page--compact .settings-page-head {
   max-width: none;
   margin: 0 0 0.42rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 0.55rem;
 }
 
 .settings-page--compact .settings-page-head h1 {
@@ -1280,8 +1276,15 @@ code {
   font-size: 1.05rem;
 }
 
+.settings-page-compact-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+}
+
 .settings-page--compact .settings-page-head p {
-  flex: 1 1 100%;
+  margin-top: 0.2rem;
   font-size: 0.68rem;
 }
 

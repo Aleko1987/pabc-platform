@@ -172,12 +172,23 @@ export function SettingsPage({ compact = false, onBack }: SettingsPageProps = {}
   return (
     <div className={`page settings-page ${compact ? "settings-page--compact" : ""}`}>
       <header className="settings-page-head">
-        {compact && onBack ? (
-          <button type="button" className="settings-inline-back" onClick={onBack} aria-label="Back to dashboard menu">
-            ←
-          </button>
-        ) : null}
-        <h1>Settings</h1>
+        {compact ? (
+          <div className="settings-page-compact-title-row">
+            <h1>Settings</h1>
+            {onBack ? (
+              <button
+                type="button"
+                className="settings-inline-back"
+                onClick={onBack}
+                aria-label="Back to dashboard menu"
+              >
+                ←
+              </button>
+            ) : null}
+          </div>
+        ) : (
+          <h1>Settings</h1>
+        )}
         <p>TODO: Org profile, integrations, role management.</p>
       </header>
       <section className="settings-export-card" aria-label="Exports">
