@@ -75,8 +75,7 @@
   font-size: 0.96rem;
 }
 
-.staff-sheet--compact .staff-clock-status,
-.staff-sheet--compact .staff-countdown-label {
+.staff-sheet--compact .staff-clock-status {
   font-size: 0.62rem;
 }
 
@@ -416,10 +415,6 @@
   margin: 0;
 }
 
-.staff-clock-footer .staff-countdown-label {
-  margin: 0.22rem 0 0;
-}
-
 .staff-countdown-card h3 {
   margin: 0 0 0.45rem;
   font-size: 0.62rem;
@@ -479,12 +474,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.staff-countdown-label {
-  margin: 0.35rem 0 0;
-  font-size: 0.68rem;
-  color: var(--text-muted);
 }
 
 .staff-shift-mode-row {

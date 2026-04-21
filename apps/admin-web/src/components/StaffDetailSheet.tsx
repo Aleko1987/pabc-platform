@@ -6,7 +6,7 @@ import "../styles/staff-sheet.css";
 
 /** 12-hour shift window for timeline (minutes). */
 const SHIFT_TOTAL_MIN = 12 * 60;
-const TRACK_TOTAL = 4;
+const TRACK_TOTAL = 3;
 const SCHEDULE_DND_MIME = "application/x-pabc-schedule-item";
 
 type ShiftMode = "day" | "night";
@@ -646,8 +646,8 @@ export function StaffDetailSheet({
                 </div>
               </div>
             </div>
-            <div className="staff-clock-footer">
-              {clockedIn && clockInAt ? (
+            {clockedIn && clockInAt ? (
+              <div className="staff-clock-footer">
                 <p className="staff-clock-status">
                   Clocked in at{" "}
                   {clockInAt.toLocaleTimeString(undefined, {
@@ -656,13 +656,8 @@ export function StaffDetailSheet({
                     second: "2-digit",
                   })}
                 </p>
-              ) : (
-                <p className="staff-clock-status">Not clocked in</p>
-              )}
-              <p className="staff-countdown-label">
-                Target {shiftEnd.toLocaleString(undefined, { weekday: "short", hour: "2-digit", minute: "2-digit" })}
-              </p>
-            </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </header>
