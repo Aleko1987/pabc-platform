@@ -532,7 +532,7 @@ code {
 }
 
 .dashboard-shell--menu-open {
-  padding-right: calc(min(360px, 100vw - 2rem) + 1.5rem);
+  padding-right: calc(min(320px, 100vw - 2rem) + 1.25rem);
 }
 
 .dashboard-staff-screen {
@@ -571,9 +571,9 @@ code {
   top: 1rem;
   right: 1rem;
   bottom: 4.9rem;
-  width: min(360px, calc(100vw - 2rem));
+  width: min(320px, calc(100vw - 2rem));
   z-index: 1700;
-  border-radius: 16px;
+  border-radius: 14px;
   border: 1px solid rgba(64, 99, 145, 0.48);
   background: linear-gradient(180deg, rgba(10, 26, 47, 0.98), rgba(6, 18, 35, 0.98));
   box-shadow:
@@ -594,11 +594,11 @@ code {
 
 .dashboard-side-menu .dashboard-page {
   max-width: none;
-  padding: 1rem;
+  padding: 0.72rem;
 }
 
 .dashboard-side-menu--staff {
-  padding: 0.5rem;
+  padding: 0.35rem;
 }
 
 .dashboard-staff-panel-wrap {
