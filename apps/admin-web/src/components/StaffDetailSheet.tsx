@@ -292,6 +292,13 @@ export function StaffDetailSheet({
   const hourSlots = useMemo(() => {
     return Array.from({ length: 13 }, (_, i) => new Date(shiftStart.getTime() + i * 60 * 60 * 1000));
   }, [shiftStart]);
+  const guardsPlanSlots = useMemo(() => {
+    const baseHour = shiftMode === "day" ? 8 : 18;
+    return Array.from({ length: 11 }, (_, i) => {
+      const hour24 = (baseHour + i) % 24;
+      return `${String(hour24).padStart(2, "0")}:00`;
+    });
+  }, [shiftMode]);
   const placedByHourIndex = useMemo(() => {
     const grouped = new Map<number, PlacedTask[]>();
     for (const task of placedTasks) {
@@ -344,6 +351,36 @@ export function StaffDetailSheet({
     },
     [],
   );
+
+  if (compact && showCoordinationCalendar) {
+    return (
+      <div className={`page staff-sheet ${compact ? "staff-sheet--compact" : ""}`}>
+        <section className="staff-guards-plan" aria-label="Guards plan calendar">
+          <div className="staff-guards-plan-head">
+            <h3>Guards plan</h3>
+            <button
+              type="button"
+              className="staff-btn-collapse-calendar"
+              onClick={() => setShowCoordinationCalendar(false)}
+              aria-label="Collapse guards plan calendar"
+            >
+              ↩
+            </button>
+          </div>
+          <div className="staff-guards-plan-body">
+            {guardsPlanSlots.map((timeLabel) => (
+              <div key={timeLabel} className="staff-guards-plan-row">
+                <div className="staff-guards-plan-time">{timeLabel}</div>
+                <button type="button" className="staff-guards-plan-slot">
+                  Click to add event
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className={`page staff-sheet ${compact ? "staff-sheet--compact" : ""}`}>
@@ -550,10 +587,11 @@ export function StaffDetailSheet({
           <div className="staff-timeline-panel-actions">
             <button
               type="button"
-              className="staff-btn-open-calendar"
+              className="staff-btn-expand-calendar"
               onClick={() => setShowCoordinationCalendar((v) => !v)}
+              aria-label={showCoordinationCalendar ? "Collapse guards plan calendar" : "Expand guards plan calendar"}
             >
-              {showCoordinationCalendar ? "Close coordination calendar" : "Open coordination calendar"}
+              {showCoordinationCalendar ? "⤡" : "⤢"}
             </button>
           </div>
 
