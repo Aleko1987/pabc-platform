@@ -709,9 +709,10 @@
   border: none;
   background: transparent;
   color: rgba(188, 209, 237, 0.88);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   cursor: pointer;
   padding: 0;
+  line-height: 1;
 }
 
 .staff-guards-plan-body {
@@ -751,6 +752,34 @@
   text-align: left;
   padding: 0 0.7rem;
   cursor: pointer;
+  width: 100%;
+}
+
+.staff-guards-plan-slot-wrap {
+  padding: 0.3rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.staff-guards-plan-entry {
+  border-left: 2px solid #3a86ff;
+  border-radius: 6px;
+  background: rgba(32, 57, 88, 0.95);
+  padding: 0.28rem 0.42rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.staff-guards-plan-entry strong {
+  font-size: 0.72rem;
+  color: #dbe9fb;
+}
+
+.staff-guards-plan-entry span {
+  font-size: 0.62rem;
+  color: rgba(188, 209, 237, 0.85);
 }
 
 .staff-coord-calendar {

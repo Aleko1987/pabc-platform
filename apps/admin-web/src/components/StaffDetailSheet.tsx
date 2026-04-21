@@ -316,6 +316,21 @@ export function StaffDetailSheet({
     }
     return grouped;
   }, [placedTasks]);
+  const t1PlacedByHourIndex = useMemo(() => {
+    const grouped = new Map<number, PlacedTask[]>();
+    for (const task of placedTasks) {
+      if (task.trackIndex !== 0) continue;
+      const hourIndex = Math.floor(task.startMin / 60);
+      if (hourIndex < 0 || hourIndex > 12) continue;
+      const list = grouped.get(hourIndex) ?? [];
+      list.push(task);
+      grouped.set(hourIndex, list);
+    }
+    for (const list of grouped.values()) {
+      list.sort((a, b) => a.startMin - b.startMin);
+    }
+    return grouped;
+  }, [placedTasks]);
 
   const placeTemplateSequential = useCallback(
     (templateId: string) => {
@@ -372,18 +387,34 @@ export function StaffDetailSheet({
               onClick={() => setShowCoordinationCalendar(false)}
               aria-label="Collapse guards plan calendar"
             >
-              ↩
+              ←
             </button>
           </div>
           <div className="staff-guards-plan-body">
-            {guardsPlanSlots.map((timeLabel) => (
-              <div key={timeLabel} className="staff-guards-plan-row">
-                <div className="staff-guards-plan-time">{timeLabel}</div>
-                <button type="button" className="staff-guards-plan-slot">
-                  Click to add event
-                </button>
-              </div>
-            ))}
+            {guardsPlanSlots.map((timeLabel, idx) => {
+              const hourTasks = t1PlacedByHourIndex.get(idx) ?? [];
+              return (
+                <div key={timeLabel} className="staff-guards-plan-row">
+                  <div className="staff-guards-plan-time">{timeLabel}</div>
+                  <div className="staff-guards-plan-slot-wrap">
+                    {hourTasks.length > 0 ? (
+                      hourTasks.map((task) => (
+                        <article key={task.placedId} className="staff-guards-plan-entry">
+                          <strong>{task.label}</strong>
+                          <span>
+                            T1 · {task.durationMin} min
+                          </span>
+                        </article>
+                      ))
+                    ) : (
+                      <button type="button" className="staff-guards-plan-slot">
+                        Click to add event
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
       </div>
