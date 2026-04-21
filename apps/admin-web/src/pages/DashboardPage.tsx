@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 
 import pabcLogo from "../assets/pabc-logo.png";
 import { StaffDetailSheet } from "../components/StaffDetailSheet";
 import { CUSTOMER_RECORDS } from "../data/customers";
 import { RosterPage } from "./RosterPage";
+import { SettingsPage } from "./SettingsPage";
 import { STAFF_RECORDS } from "../data/staffDirectory";
 
 type Tab = "customers" | "staff";
@@ -35,6 +35,7 @@ export function DashboardPage() {
   const [showSideMenu, setShowSideMenu] = useState(false);
   const [selectedCustomerSlugs, setSelectedCustomerSlugs] = useState<string[]>([]);
   const [activeStaffSlug, setActiveStaffSlug] = useState<string | null>(null);
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
   const searchQuery = query.trim();
   const globalMatches = useGlobalMatches(searchQuery);
   const isGlobalSearch = searchQuery.length > 0;
@@ -103,11 +104,18 @@ export function DashboardPage() {
 
   const openStaffView = (staffSlug: string) => {
     setActiveStaffSlug(staffSlug);
+    setShowSettingsPanel(false);
     setShowSideMenu(true);
   };
 
   const closeStaffView = () => {
     setActiveStaffSlug(null);
+  };
+
+  const openSettingsView = () => {
+    setActiveStaffSlug(null);
+    setShowSettingsPanel(true);
+    setShowSideMenu(true);
   };
 
   return (
@@ -127,6 +135,7 @@ export function DashboardPage() {
             const next = !v;
             if (!next) {
               setActiveStaffSlug(null);
+              setShowSettingsPanel(false);
             }
             return next;
           })
@@ -138,7 +147,7 @@ export function DashboardPage() {
 
       <aside
         className={`dashboard-side-menu ${showSideMenu ? "dashboard-side-menu--open" : ""} ${
-          activeStaffSlug ? "dashboard-side-menu--staff" : ""
+          activeStaffSlug || showSettingsPanel ? "dashboard-side-menu--staff" : ""
         }`}
         aria-label="Dashboard side menu"
       >
@@ -146,13 +155,22 @@ export function DashboardPage() {
           <div className="dashboard-staff-panel-wrap">
             <StaffDetailSheet staffSlug={activeStaffSlug} onBack={closeStaffView} backLabel="← Back to menu" compact />
           </div>
+        ) : showSettingsPanel ? (
+          <div className="dashboard-staff-panel-wrap">
+            <SettingsPage compact onBack={() => setShowSettingsPanel(false)} />
+          </div>
         ) : (
           <div className="page dashboard-page">
             <header className="dashboard-header">
               <h1 className="dashboard-title">Dashboard</h1>
-              <Link to="/settings" className="dashboard-settings-cog" aria-label="Open settings">
+              <button
+                type="button"
+                className="dashboard-settings-cog"
+                aria-label="Open settings"
+                onClick={openSettingsView}
+              >
                 ⚙
-              </Link>
+              </button>
               <div className="dashboard-broadcast-actions">
                 <button
                   type="button"

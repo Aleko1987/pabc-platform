@@ -317,6 +317,8 @@ code {
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
+  cursor: pointer;
+  font: inherit;
 }
 
 .dashboard-search-wrap {
@@ -1259,6 +1261,40 @@ code {
   color: var(--text-muted);
 }
 
+.settings-page--compact {
+  max-width: none;
+  margin: 0;
+}
+
+.settings-page--compact .settings-page-head {
+  max-width: none;
+  margin: 0 0 0.42rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+}
+
+.settings-page--compact .settings-page-head h1 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.settings-page--compact .settings-page-head p {
+  flex: 1 1 100%;
+  font-size: 0.68rem;
+}
+
+.settings-inline-back {
+  border: none;
+  background: none;
+  color: rgba(128, 161, 204, 0.95);
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
 .settings-export-card {
   max-width: 360px;
   margin: 0.8rem 0 0 auto;
@@ -1266,6 +1302,11 @@ code {
   border-radius: 10px;
   border: 1px solid rgba(63, 98, 143, 0.4);
   background: linear-gradient(180deg, rgba(13, 30, 53, 0.82), rgba(7, 20, 37, 0.86));
+}
+
+.settings-page--compact .settings-export-card {
+  max-width: none;
+  margin: 0;
 }
 
 .settings-export-title {

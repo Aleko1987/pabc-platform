@@ -32,7 +32,12 @@ function downloadCsv(filename: string, lines: string[]): void {
 
 type ExportScope = "all" | "area" | "company" | "individual";
 
-export function SettingsPage() {
+type SettingsPageProps = {
+  compact?: boolean;
+  onBack?: () => void;
+};
+
+export function SettingsPage({ compact = false, onBack }: SettingsPageProps = {}) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [monthIndex, setMonthIndex] = useState(today.getMonth());
@@ -165,8 +170,13 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="page settings-page">
+    <div className={`page settings-page ${compact ? "settings-page--compact" : ""}`}>
       <header className="settings-page-head">
+        {compact && onBack ? (
+          <button type="button" className="settings-inline-back" onClick={onBack} aria-label="Back to dashboard menu">
+            ←
+          </button>
+        ) : null}
         <h1>Settings</h1>
         <p>TODO: Org profile, integrations, role management.</p>
       </header>
