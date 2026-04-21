@@ -762,6 +762,11 @@
   gap: 0.25rem;
 }
 
+.staff-guards-plan-slot-wrap--dragover {
+  background: rgba(58, 134, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(58, 134, 255, 0.55);
+}
+
 .staff-guards-plan-entry {
   border-left: 2px solid #3a86ff;
   border-radius: 6px;
@@ -770,6 +775,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.12rem;
+  cursor: grab;
 }
 
 .staff-guards-plan-entry strong {

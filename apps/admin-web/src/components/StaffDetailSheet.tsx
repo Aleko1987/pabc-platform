@@ -7,6 +7,7 @@ import "../styles/staff-sheet.css";
 /** 12-hour shift window for timeline (minutes). */
 const SHIFT_TOTAL_MIN = 12 * 60;
 const TRACK_TOTAL = 4;
+const SCHEDULE_DND_MIME = "application/x-pabc-schedule-item";
 
 type ShiftMode = "day" | "night";
 
@@ -113,6 +114,7 @@ export function StaffDetailSheet({
   const [clockInAt, setClockInAt] = useState<Date | null>(null);
   const [placedTasks, setPlacedTasks] = useState<PlacedTask[]>([]);
   const [dragOverTrack, setDragOverTrack] = useState<number | null>(null);
+  const [dragOverGuardHourIndex, setDragOverGuardHourIndex] = useState<number | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
   const [showCoordinationCalendar, setShowCoordinationCalendar] = useState(false);
@@ -370,6 +372,77 @@ export function StaffDetailSheet({
     [],
   );
 
+  const scheduleAtHour = useCallback(
+    (hourIndex: number, durationMin: number, tasks: PlacedTask[]) => {
+      const hourStart = hourIndex * 60;
+      const rowTasks = tasks
+        .filter((t) => t.trackIndex === 0 && t.startMin >= hourStart)
+        .sort((a, b) => a.startMin - b.startMin);
+      let startMin = hourStart;
+      for (const t of rowTasks) {
+        if (t.startMin > startMin) break;
+        startMin = Math.max(startMin, t.startMin + t.durationMin);
+      }
+      if (startMin + durationMin > SHIFT_TOTAL_MIN) {
+        return null;
+      }
+      return startMin;
+    },
+    [],
+  );
+
+  const onDropGuardHour = useCallback(
+    (e: React.DragEvent, hourIndex: number) => {
+      e.preventDefault();
+      setDragOverGuardHourIndex(null);
+      const raw = e.dataTransfer.getData(SCHEDULE_DND_MIME) || e.dataTransfer.getData("application/json");
+      if (!raw) return;
+
+      let payload: { kind: string; templateId?: string; placedId?: string; durationMin?: number };
+      try {
+        payload = JSON.parse(raw);
+      } catch {
+        return;
+      }
+
+      if (payload.kind === "guards-entry" && payload.placedId) {
+        setPlacedTasks((prev) => {
+          const existing = prev.find((p) => p.placedId === payload.placedId);
+          if (!existing) return prev;
+          const nextStart = scheduleAtHour(hourIndex, existing.durationMin, prev.filter((p) => p.placedId !== payload.placedId));
+          if (nextStart == null) return prev;
+          return prev.map((p) =>
+            p.placedId === payload.placedId ? { ...p, trackIndex: 0, startMin: nextStart } : p,
+          );
+        });
+        return;
+      }
+
+      if (payload.kind === "template" && payload.templateId && typeof payload.durationMin === "number") {
+        const t = TASK_LIBRARY.find((task) => task.id === payload.templateId);
+        if (!t) return;
+        setPlacedTasks((prev) => {
+          const nextStart = scheduleAtHour(hourIndex, t.durationMin, prev);
+          if (nextStart == null) return prev;
+          const placedId = `placed-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+          return [
+            ...prev,
+            {
+              placedId,
+              templateId: t.id,
+              label: t.label,
+              startMin: nextStart,
+              durationMin: t.durationMin,
+              color: t.color,
+              trackIndex: 0,
+            },
+          ];
+        });
+      }
+    },
+    [scheduleAtHour],
+  );
+
   if (compact && showCoordinationCalendar) {
     return (
       <div className={`page staff-sheet ${compact ? "staff-sheet--compact" : ""} staff-sheet--guards-plan`}>
@@ -396,10 +469,31 @@ export function StaffDetailSheet({
               return (
                 <div key={timeLabel} className="staff-guards-plan-row">
                   <div className="staff-guards-plan-time">{timeLabel}</div>
-                  <div className="staff-guards-plan-slot-wrap">
+                  <div
+                    className={`staff-guards-plan-slot-wrap ${
+                      dragOverGuardHourIndex === idx ? "staff-guards-plan-slot-wrap--dragover" : ""
+                    }`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOverGuardHourIndex(idx);
+                    }}
+                    onDragLeave={() => setDragOverGuardHourIndex((prev) => (prev === idx ? null : prev))}
+                    onDrop={(e) => onDropGuardHour(e, idx)}
+                  >
                     {hourTasks.length > 0 ? (
                       hourTasks.map((task) => (
-                        <article key={task.placedId} className="staff-guards-plan-entry">
+                        <article
+                          key={task.placedId}
+                          className="staff-guards-plan-entry"
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData(
+                              SCHEDULE_DND_MIME,
+                              JSON.stringify({ kind: "guards-entry", placedId: task.placedId }),
+                            );
+                            e.dataTransfer.effectAllowed = "move";
+                          }}
+                        >
                           <strong>{task.label}</strong>
                           <span>
                             T1 · {task.durationMin} min
