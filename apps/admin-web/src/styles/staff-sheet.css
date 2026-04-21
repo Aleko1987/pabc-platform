@@ -16,12 +16,14 @@
 }
 
 .staff-sheet--compact .staff-sheet-name {
-  font-size: 1rem;
+  font-size: 0.93rem;
+  margin: 0;
 }
 
 .staff-sheet--compact .staff-sheet-meta {
-  font-size: 0.7rem;
-  gap: 0.45rem 0.6rem;
+  font-size: 0.66rem;
+  gap: 0.2rem 0.55rem;
+  margin-top: 0;
 }
 
 .staff-sheet--compact .staff-sheet-actions {
@@ -48,6 +50,11 @@
 .staff-sheet--compact .staff-shift-toggle-btn {
   padding: 0.4rem 0.35rem;
   font-size: 0.68rem;
+}
+
+.staff-sheet--compact .staff-sheet-actions {
+  margin-top: 0.55rem;
+  gap: 0.55rem;
 }
 
 .staff-sheet-back {
@@ -124,6 +131,10 @@
   font-weight: 600;
 }
 
+.staff-sheet--compact .staff-sheet-meta strong {
+  color: rgba(211, 228, 248, 0.95);
+}
+
 .staff-sheet-hero-top {
   display: flex;
   flex-wrap: wrap;
@@ -146,6 +157,41 @@
   flex-shrink: 0;
 }
 
+.staff-sheet-compact-head {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+}
+
+.staff-sheet-compact-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.staff-sheet-inline-back {
+  border: none;
+  background: none;
+  color: rgba(128, 161, 204, 0.95);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.staff-sheet-compact-subrow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.staff-sheet-hero-actions--compact {
+  justify-content: flex-start;
+}
+
 .staff-btn-comm-icon {
   width: 34px;
   height: 34px;
@@ -159,6 +205,13 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.staff-sheet--compact .staff-btn-comm-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  font-size: 0.82rem;
 }
 
 .staff-btn-comm-icon--voice {

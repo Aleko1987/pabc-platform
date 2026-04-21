@@ -329,7 +329,7 @@ export function StaffDetailSheet({
 
   return (
     <div className={`page staff-sheet ${compact ? "staff-sheet--compact" : ""}`}>
-      {onBack ? (
+      {onBack && !compact ? (
         <button type="button" className="text-link staff-sheet-back staff-sheet-back-btn" onClick={onBack}>
           {backLabel}
         </button>
@@ -341,39 +341,83 @@ export function StaffDetailSheet({
 
       <header className="staff-sheet-hero">
         <div className="staff-sheet-hero-top">
-          <div className="staff-sheet-hero-text">
-            <h1 className="staff-sheet-name">{staff.name}</h1>
-            <div className="staff-sheet-meta">
-              <span>
-                <strong>Role</strong> — {staff.role}
-              </span>
-              {staff.phone ? (
-                <span>
-                  <strong>Comms</strong> — {staff.phone}
-                </span>
-              ) : null}
+          {compact ? (
+            <div className="staff-sheet-compact-head">
+              <div className="staff-sheet-compact-title-row">
+                <h1 className="staff-sheet-name">{staff.name}</h1>
+                {onBack ? (
+                  <button type="button" className="staff-sheet-inline-back" onClick={onBack} aria-label={backLabel}>
+                    ←
+                  </button>
+                ) : null}
+              </div>
+              <div className="staff-sheet-compact-subrow">
+                <div className="staff-sheet-hero-actions staff-sheet-hero-actions--compact">
+                  <button
+                    type="button"
+                    className="staff-btn-comm-icon"
+                    onClick={sendStaffMessage}
+                    title={`Send message to ${staff.name}`}
+                    aria-label={`Send message to ${staff.name}`}
+                  >
+                    ✉
+                  </button>
+                  <button
+                    type="button"
+                    className="staff-btn-comm-icon staff-btn-comm-icon--voice"
+                    onClick={sendStaffVoice}
+                    title={`Send voice note to ${staff.name}`}
+                    aria-label={`Send voice note to ${staff.name}`}
+                  >
+                    🎤
+                  </button>
+                </div>
+                <div className="staff-sheet-meta">
+                  <span>
+                    <strong>Role</strong> — {staff.role}
+                  </span>
+                  {staff.phone ? (
+                    <span>
+                      <strong>Comms</strong> — {staff.phone}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="staff-sheet-hero-actions">
-            <button
-              type="button"
-              className="staff-btn-comm-icon"
-              onClick={sendStaffMessage}
-              title={`Send message to ${staff.name}`}
-              aria-label={`Send message to ${staff.name}`}
-            >
-              ✉
-            </button>
-            <button
-              type="button"
-              className="staff-btn-comm-icon staff-btn-comm-icon--voice"
-              onClick={sendStaffVoice}
-              title={`Send voice note to ${staff.name}`}
-              aria-label={`Send voice note to ${staff.name}`}
-            >
-              🎤
-            </button>
-            {!compact ? (
+          ) : (
+            <>
+              <div className="staff-sheet-hero-text">
+                <h1 className="staff-sheet-name">{staff.name}</h1>
+                <div className="staff-sheet-meta">
+                  <span>
+                    <strong>Role</strong> — {staff.role}
+                  </span>
+                  {staff.phone ? (
+                    <span>
+                      <strong>Comms</strong> — {staff.phone}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+              <div className="staff-sheet-hero-actions">
+                <button
+                  type="button"
+                  className="staff-btn-comm-icon"
+                  onClick={sendStaffMessage}
+                  title={`Send message to ${staff.name}`}
+                  aria-label={`Send message to ${staff.name}`}
+                >
+                  ✉
+                </button>
+                <button
+                  type="button"
+                  className="staff-btn-comm-icon staff-btn-comm-icon--voice"
+                  onClick={sendStaffVoice}
+                  title={`Send voice note to ${staff.name}`}
+                  aria-label={`Send voice note to ${staff.name}`}
+                >
+                  🎤
+                </button>
               <Link
                 to={`/staff/${staff.slug}/schedule`}
                 className="staff-btn-view-schedule"
@@ -381,8 +425,9 @@ export function StaffDetailSheet({
               >
                 View schedule
               </Link>
-            ) : null}
-          </div>
+              </div>
+            </>
+          )}
         </div>
         {broadcastNotice ? (
           <div className="staff-camera-notice" role="status">
