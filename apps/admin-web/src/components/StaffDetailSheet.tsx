@@ -115,6 +115,7 @@ export function StaffDetailSheet({
   const [dragOverTrack, setDragOverTrack] = useState<number | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
+  const [showCoordinationCalendar, setShowCoordinationCalendar] = useState(false);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000);
@@ -288,6 +289,23 @@ export function StaffDetailSheet({
   }, [shiftStart]);
 
   const tracks = Array.from({ length: TRACK_TOTAL }, (_, i) => i);
+  const hourSlots = useMemo(() => {
+    return Array.from({ length: 13 }, (_, i) => new Date(shiftStart.getTime() + i * 60 * 60 * 1000));
+  }, [shiftStart]);
+  const placedByHourIndex = useMemo(() => {
+    const grouped = new Map<number, PlacedTask[]>();
+    for (const task of placedTasks) {
+      const hourIndex = Math.floor(task.startMin / 60);
+      if (hourIndex < 0 || hourIndex > 12) continue;
+      const list = grouped.get(hourIndex) ?? [];
+      list.push(task);
+      grouped.set(hourIndex, list);
+    }
+    for (const list of grouped.values()) {
+      list.sort((a, b) => a.startMin - b.startMin);
+    }
+    return grouped;
+  }, [placedTasks]);
 
   const placeTemplateSequential = useCallback(
     (templateId: string) => {
@@ -529,90 +547,138 @@ export function StaffDetailSheet({
               {shiftEnd.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false })}
             </h3>
           </div>
+          <div className="staff-timeline-panel-actions">
+            <button
+              type="button"
+              className="staff-btn-open-calendar"
+              onClick={() => setShowCoordinationCalendar((v) => !v)}
+            >
+              {showCoordinationCalendar ? "Close coordination calendar" : "Open coordination calendar"}
+            </button>
+          </div>
 
-          <div className="staff-timeline-editor">
-            <div className="staff-timeline-ruler-row">
-              <div className="staff-timeline-corner" aria-hidden />
-              <div className="staff-timeline-ruler-area">
-                <div className="staff-timeline-ruler-ticks" />
-                <div className="staff-timeline-ruler-labels">
-                  {rulerLabels.map((label) => (
-                    <span key={label}>{label}</span>
-                  ))}
-                </div>
-                {playheadPct != null ? (
-                  <div
-                    className="staff-playhead"
-                    style={{ left: `${playheadPct}%` }}
-                    title="Now (within shift window)"
-                  />
-                ) : null}
-              </div>
-            </div>
-
-            {tracks.map((trackIndex) => {
-              const rowTasks = placedTasks.filter((p) => p.trackIndex === trackIndex);
-              return (
-                <div key={trackIndex} className="staff-track-row">
-                  <div className="staff-track-label">
-                    <span className="staff-track-name">T{trackIndex + 1}</span>
-                    <span className="staff-track-icons" aria-hidden>
-                      <span className="staff-track-icon" title="Lock track">
-                        ○
-                      </span>
-                    </span>
+          {showCoordinationCalendar ? (
+            <div className="staff-coord-calendar" aria-label="Coordination day calendar">
+              {hourSlots.map((slot, idx) => {
+                const hourTasks = placedByHourIndex.get(idx) ?? [];
+                return (
+                  <div key={slot.toISOString()} className="staff-coord-row">
+                    <div className="staff-coord-time">
+                      {slot.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false })}
+                    </div>
+                    <div className="staff-coord-cell">
+                      {hourTasks.length > 0 ? (
+                        hourTasks.map((task) => (
+                          <article key={task.placedId} className="staff-coord-card">
+                            <div className="staff-coord-card-main">
+                              <strong>{task.label}</strong>
+                              <span>
+                                {staff.name} · Track {task.trackIndex + 1}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              className="staff-coord-card-remove"
+                              onClick={() => removePlaced(task.placedId)}
+                              aria-label="Remove task"
+                            >
+                              🗑
+                            </button>
+                          </article>
+                        ))
+                      ) : (
+                        <p className="staff-coord-empty">Click to add event</p>
+                      )}
+                    </div>
                   </div>
-                  <div
-                    className={`staff-track-lane ${dragOverTrack === trackIndex ? "staff-track-lane--drag" : ""} ${
-                      selectedTemplateId ? "staff-track-lane--armed" : ""
-                    }`}
-                    onDragOver={(e) => onDragOverLane(e, trackIndex)}
-                    onDragLeave={onDragLeaveLane}
-                    onDrop={(e) => onDropLane(e, trackIndex)}
-                    onClick={(e) => onClickLane(e, trackIndex)}
-                  >
-                    <div className="staff-track-lane-grid" aria-hidden />
-                    {rowTasks.length === 0 ? (
-                      <div className="staff-track-lane-hint">Drop tasks here · channel {trackIndex + 1}</div>
-                    ) : null}
-                    {rowTasks.map((p) => {
-                      const leftPct = (p.startMin / SHIFT_TOTAL_MIN) * 100;
-                      const widthPct = (p.durationMin / SHIFT_TOTAL_MIN) * 100;
-                      return (
-                        <div
-                          key={p.placedId}
-                          className="staff-timeline-block"
-                          style={{
-                            left: `${leftPct}%`,
-                            width: `${widthPct}%`,
-                            backgroundColor: p.color,
-                            color: "#fff",
-                          }}
-                          title={`${p.label} · ${p.startMin}m–${p.startMin + p.durationMin}m · T${trackIndex + 1}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removePlaced(p.placedId);
-                          }}
-                        >
-                          <span className="staff-timeline-block-label">{p.label}</span>
-                          <button
-                            type="button"
+                );
+              })}
+            </div>
+          ) : (
+            <div className="staff-timeline-editor">
+              <div className="staff-timeline-ruler-row">
+                <div className="staff-timeline-corner" aria-hidden />
+                <div className="staff-timeline-ruler-area">
+                  <div className="staff-timeline-ruler-ticks" />
+                  <div className="staff-timeline-ruler-labels">
+                    {rulerLabels.map((label) => (
+                      <span key={label}>{label}</span>
+                    ))}
+                  </div>
+                  {playheadPct != null ? (
+                    <div
+                      className="staff-playhead"
+                      style={{ left: `${playheadPct}%` }}
+                      title="Now (within shift window)"
+                    />
+                  ) : null}
+                </div>
+              </div>
+
+              {tracks.map((trackIndex) => {
+                const rowTasks = placedTasks.filter((p) => p.trackIndex === trackIndex);
+                return (
+                  <div key={trackIndex} className="staff-track-row">
+                    <div className="staff-track-label">
+                      <span className="staff-track-name">T{trackIndex + 1}</span>
+                      <span className="staff-track-icons" aria-hidden>
+                        <span className="staff-track-icon" title="Lock track">
+                          ○
+                        </span>
+                      </span>
+                    </div>
+                    <div
+                      className={`staff-track-lane ${dragOverTrack === trackIndex ? "staff-track-lane--drag" : ""} ${
+                        selectedTemplateId ? "staff-track-lane--armed" : ""
+                      }`}
+                      onDragOver={(e) => onDragOverLane(e, trackIndex)}
+                      onDragLeave={onDragLeaveLane}
+                      onDrop={(e) => onDropLane(e, trackIndex)}
+                      onClick={(e) => onClickLane(e, trackIndex)}
+                    >
+                      <div className="staff-track-lane-grid" aria-hidden />
+                      {rowTasks.length === 0 ? (
+                        <div className="staff-track-lane-hint">Drop tasks here · channel {trackIndex + 1}</div>
+                      ) : null}
+                      {rowTasks.map((p) => {
+                        const leftPct = (p.startMin / SHIFT_TOTAL_MIN) * 100;
+                        const widthPct = (p.durationMin / SHIFT_TOTAL_MIN) * 100;
+                        return (
+                          <div
+                            key={p.placedId}
+                            className="staff-timeline-block"
+                            style={{
+                              left: `${leftPct}%`,
+                              width: `${widthPct}%`,
+                              backgroundColor: p.color,
+                              color: "#fff",
+                            }}
+                            title={`${p.label} · ${p.startMin}m–${p.startMin + p.durationMin}m · T${trackIndex + 1}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               removePlaced(p.placedId);
                             }}
-                            aria-label="Remove task"
                           >
-                            ×
-                          </button>
-                        </div>
-                      );
-                    })}
+                            <span className="staff-timeline-block-label">{p.label}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removePlaced(p.placedId);
+                              }}
+                              aria-label="Remove task"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

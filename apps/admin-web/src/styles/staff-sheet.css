@@ -653,6 +653,109 @@
   color: var(--text-muted);
 }
 
+.staff-timeline-panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.55rem;
+}
+
+.staff-btn-open-calendar {
+  border-radius: 8px;
+  border: 1px solid rgba(63, 98, 143, 0.58);
+  background: rgba(10, 22, 40, 0.82);
+  color: #bfdcfb;
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
+.staff-btn-open-calendar:hover {
+  border-color: rgba(212, 175, 55, 0.62);
+  color: var(--gold);
+}
+
+.staff-coord-calendar {
+  border: 1px solid rgba(63, 98, 143, 0.4);
+  border-radius: 9px;
+  overflow: auto;
+  max-height: 520px;
+  background: rgba(241, 245, 250, 0.98);
+}
+
+.staff-coord-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  min-height: 48px;
+  border-bottom: 1px solid rgba(130, 148, 173, 0.32);
+}
+
+.staff-coord-row:last-child {
+  border-bottom: none;
+}
+
+.staff-coord-time {
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: #294b73;
+  background: rgba(225, 233, 243, 0.95);
+  border-right: 1px solid rgba(130, 148, 173, 0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.staff-coord-cell {
+  padding: 0.45rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.staff-coord-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-left: 3px solid #3a86ff;
+  border-radius: 6px;
+  background: #dfe9f5;
+  padding: 0.45rem 0.5rem;
+}
+
+.staff-coord-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.staff-coord-card-main strong {
+  font-size: 0.78rem;
+  color: #113a70;
+}
+
+.staff-coord-card-main span {
+  font-size: 0.7rem;
+  color: #4b6078;
+}
+
+.staff-coord-card-remove {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: #5d6d80;
+}
+
+.staff-coord-empty {
+  margin: 0;
+  color: #8a98aa;
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
 /* Video-style multi-track editor */
 .staff-timeline-editor {
   display: flex;
