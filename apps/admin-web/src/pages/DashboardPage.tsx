@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import pabcLogo from "../assets/pabc-logo.png";
+import { StaffDetailSheet } from "../components/StaffDetailSheet";
 import { CUSTOMER_RECORDS } from "../data/customers";
 import { RosterPage } from "./RosterPage";
 import { STAFF_RECORDS } from "../data/staffDirectory";
@@ -33,6 +34,9 @@ export function DashboardPage() {
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
   const [showSideMenu, setShowSideMenu] = useState(false);
   const [selectedCustomerSlugs, setSelectedCustomerSlugs] = useState<string[]>([]);
+  const [activeStaffSlug, setActiveStaffSlug] = useState<string | null>(null);
+  const [showStaffPicker, setShowStaffPicker] = useState(false);
+  const [staffPickerQuery, setStaffPickerQuery] = useState("");
   const searchQuery = query.trim();
   const globalMatches = useGlobalMatches(searchQuery);
   const isGlobalSearch = searchQuery.length > 0;
@@ -98,6 +102,48 @@ export function DashboardPage() {
     globalMatches &&
     globalMatches.customers.length === 0 &&
     globalMatches.staff.length === 0;
+  const filteredPickerStaff = useMemo(() => {
+    const q = staffPickerQuery.trim().toLowerCase();
+    if (!q) return STAFF_RECORDS;
+    return STAFF_RECORDS.filter(
+      (s) => s.name.toLowerCase().includes(q) || s.role.toLowerCase().includes(q),
+    );
+  }, [staffPickerQuery]);
+
+  const openStaffModal = (staffSlug: string) => {
+    setActiveStaffSlug(staffSlug);
+    setShowStaffPicker(false);
+  };
+
+  const closeStaffModal = () => {
+    setActiveStaffSlug(null);
+  };
+
+  useEffect(() => {
+    if (!showSideMenu) {
+      setShowStaffPicker(false);
+    }
+  }, [showSideMenu]);
+
+  useEffect(() => {
+    if (!activeStaffSlug) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActiveStaffSlug(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activeStaffSlug]);
+
+  useEffect(() => {
+    if (!activeStaffSlug) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [activeStaffSlug]);
 
   return (
     <div className={`dashboard-shell ${showSideMenu ? "dashboard-shell--menu-open" : ""}`}>
@@ -105,6 +151,7 @@ export function DashboardPage() {
         embedded
         selectedClientSlugs={selectedCustomerSlugs}
         onSelectedClientSlugsChange={setSelectedCustomerSlugs}
+        onOpenStaff={openStaffModal}
       />
 
       <button
@@ -120,6 +167,15 @@ export function DashboardPage() {
         <div className="page dashboard-page">
           <header className="dashboard-header">
             <h1 className="dashboard-title">Dashboard</h1>
+            <button
+              type="button"
+              className="dashboard-staff-picker-btn"
+              onClick={() => setShowStaffPicker((prev) => !prev)}
+              aria-label={showStaffPicker ? "Close staff picker" : "Open staff picker"}
+              aria-expanded={showStaffPicker}
+            >
+              👤
+            </button>
             <Link to="/settings" className="dashboard-settings-cog" aria-label="Open settings">
               ⚙
             </Link>
@@ -163,6 +219,37 @@ export function DashboardPage() {
               />
             </div>
           </header>
+          {showStaffPicker ? (
+            <section className="dashboard-staff-picker" aria-label="Staff picker">
+              <label className="visually-hidden" htmlFor="dashboard-staff-picker-search">
+                Search staff
+              </label>
+              <input
+                id="dashboard-staff-picker-search"
+                type="search"
+                className="dashboard-search-input"
+                placeholder="Find staff for popup…"
+                value={staffPickerQuery}
+                onChange={(e) => setStaffPickerQuery(e.target.value)}
+                autoComplete="off"
+              />
+              <ul className="dashboard-staff-picker-list">
+                {filteredPickerStaff.map((staff) => (
+                  <li key={staff.slug}>
+                    <button
+                      type="button"
+                      className="dashboard-pill-link dashboard-pill-link--button"
+                      onClick={() => openStaffModal(staff.slug)}
+                    >
+                      {staff.name}
+                      <span className="dashboard-pill-meta">{staff.role}</span>
+                    </button>
+                  </li>
+                ))}
+                {filteredPickerStaff.length === 0 ? <li className="dashboard-empty">No staff found.</li> : null}
+              </ul>
+            </section>
+          ) : null}
           {broadcastNotice ? (
             <p className="dashboard-broadcast-notice" role="status">
               {broadcastNotice}
@@ -232,9 +319,10 @@ export function DashboardPage() {
                       <ul className="dashboard-pill-list">
                         {globalMatches.staff.map((s) => (
                           <li key={s.slug}>
-                            <Link
-                              to={`/staff/${s.slug}`}
+                            <button
+                              type="button"
                               className="dashboard-pill-link"
+                              onClick={() => openStaffModal(s.slug)}
                               draggable
                               onDragStart={(e) => {
                                 e.dataTransfer.setData(DND_MIME, JSON.stringify({ kind: "pool", staffSlug: s.slug }));
@@ -243,7 +331,7 @@ export function DashboardPage() {
                             >
                               {s.name}
                               <span className="dashboard-pill-meta">{s.role}</span>
-                            </Link>
+                            </button>
                           </li>
                         ))}
                       </ul>
@@ -289,9 +377,10 @@ export function DashboardPage() {
                   <ul className="dashboard-pill-list">
                     {filteredStaffTab.map((s) => (
                       <li key={s.slug}>
-                        <Link
-                          to={`/staff/${s.slug}`}
+                        <button
+                          type="button"
                           className="dashboard-pill-link"
+                          onClick={() => openStaffModal(s.slug)}
                           draggable
                           onDragStart={(e) => {
                             e.dataTransfer.setData(DND_MIME, JSON.stringify({ kind: "pool", staffSlug: s.slug }));
@@ -300,7 +389,7 @@ export function DashboardPage() {
                         >
                           {s.name}
                           <span className="dashboard-pill-meta">{s.role}</span>
-                        </Link>
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -310,6 +399,30 @@ export function DashboardPage() {
           )}
         </div>
       </aside>
+
+      {activeStaffSlug ? (
+        <div
+          className="dashboard-staff-modal-backdrop"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.currentTarget === e.target) {
+              closeStaffModal();
+            }
+          }}
+        >
+          <section className="dashboard-staff-modal" role="dialog" aria-modal="true" aria-label="Staff details">
+            <button
+              type="button"
+              className="dashboard-staff-modal-close"
+              onClick={closeStaffModal}
+              aria-label="Close staff details"
+            >
+              ×
+            </button>
+            <StaffDetailSheet staffSlug={activeStaffSlug} />
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }

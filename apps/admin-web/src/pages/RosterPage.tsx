@@ -27,12 +27,14 @@ type Props = {
   embedded?: boolean;
   selectedClientSlugs?: string[];
   onSelectedClientSlugsChange?: (slugs: string[]) => void;
+  onOpenStaff?: (staffSlug: string) => void;
 };
 
 export function RosterPage({
   embedded = false,
   selectedClientSlugs,
   onSelectedClientSlugsChange,
+  onOpenStaff,
 }: Props) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
@@ -350,9 +352,23 @@ export function RosterPage({
                         }}
                       >
                         <div className="roster-cal-card-head">
-                          <Link to={`/staff/${p.staffSlug}`} className="roster-cal-name">
-                            {p.staffName}
-                          </Link>
+                          {embedded && onOpenStaff ? (
+                            <button
+                              type="button"
+                              className="roster-cal-name roster-cal-name--button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onOpenStaff(p.staffSlug);
+                              }}
+                            >
+                              {p.staffName}
+                            </button>
+                          ) : (
+                            <Link to={`/staff/${p.staffSlug}`} className="roster-cal-name">
+                              {p.staffName}
+                            </Link>
+                          )}
                         </div>
                         {activeClientSlugs.length === 0 ? (
                           <span className="roster-cal-meta">{truncate(p.customerName, 22)}</span>
